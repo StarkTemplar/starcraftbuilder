@@ -32,7 +32,7 @@ def ErrorMsg(e):
     if e == NegativeTime:
         return "Wrong time - negative number was inserted"
     elif e == ConditionNotSatisfied:
-        return "Something is missing"
+        return "Prerequisite building does not exist"
     elif e == NoWorkerExists:
         return "No worker exists"
     elif e == WrongBuildingName:
@@ -44,19 +44,19 @@ def ErrorMsg(e):
     elif e == UnknownError:
         return "Unknown error"
     elif e == WrongFlag:
-        return "wrong type - it must be 'unit', 'building' or 'upgrade'"
+        return "Wrong type - it must be 'unit', 'building' or 'upgrade'"
     elif e == SupplyBlocked:
-        return "Supply blocked - you should construct pylon or etc"
+        return "Supply blocked - you should construct more supply"
     elif e == NoBarrackExists:
-        return "No appropriate barrack exists"
+        return "No appropriate production facility exists"
     elif e == NoOneGathersGasOrMineral:
         return "No one gathers gas or mineral"
     elif e == MineralFieldsAreFull:
         return "Mineral fields are full"
     elif e == NoOneGathersGas:
-        return "No one ghaters gas"
+        return "No one gathers gas"
     elif e == GasLayersAreFull:
-        return "Gas layers are full"
+        return "Gas geysers are full"
     elif e == NotEnoughWorkers:
         return "Not enough workers"
     elif e == NoRefineryExists:
@@ -76,16 +76,16 @@ def ErrorMsg(e):
     elif e == NoPathExists:
         return "No Icon Exists"
     elif e == NotUnitType:
-        return "not unit type"
+        return "Not unit type"
     elif e == NotBuildingType:
-        return "not building type"
+        return "Not building type"
     elif e == UniqueOnly:
-        return "you can't do this more than once"
+        return "You can't do this more than once"
     elif e == WrongRace:
-        return "wrong race name"
+        return "Wrong race name"
     elif e == WrongFileFormat:
-        return "wrong file format or it's cracked"
+        return "Wrong file format or it's cracked"
     elif e == IncompatibleVersion:
-        return "incompatible version file"
+        return "Incompatible version file"
     else:
         return "Unknown error code"

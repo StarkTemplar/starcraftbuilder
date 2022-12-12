@@ -396,8 +396,8 @@ class Engine():
         return self.ResourceTime(mineral, gas, (int)(aftertime+1))
     
 # accumulated minerals and gases at given time (seconds)
-# this supposes that a worker returns 5 minerals for every 7.65 sec
-# and a worker returns 4 gases for every 6.315789474 sec
+# this supposes that a worker returns 5 minerals for every 5.4 sec. One worker on one mineral field gathers 55-60 minerals per minute (80-85 for gold minerals), depending on distance.
+# and a worker returns 4 gases for every 3.9 sec. One worker on a geyser gathers 61 gas per minute.
     def AccResources(self, time):
         mineral = 50
         gas = 0
@@ -407,8 +407,8 @@ class Engine():
         for i in range(len(self.worker.time)):
             if self.worker.time[i] > time:
                 continue
-            mineral += 5 * self.worker.mineral[i] * (int) ((time - self.worker.time[i]) / 6.6666)
-            gas += 4 * self.worker.gas[i] * (int) ((time - self.worker.time[i]) / 6.315789474)
+            mineral += 5 * self.worker.mineral[i] * (int) ((time - self.worker.time[i]) / 5.4)
+            gas += 4 * self.worker.gas[i] * (int) ((time - self.worker.time[i]) / 3.9)
 
         for i in self.queue:
             if i.starttime > time:

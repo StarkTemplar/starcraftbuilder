@@ -7,6 +7,10 @@ from unit import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5 import *
+
+#QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
+#QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
 VERSION = 1.0
 
@@ -48,6 +52,12 @@ class sc2buildUI(QMainWindow):
         self.setFixedSize(1280,635)
         self.center()
         self.setWindowTitle('sc2builder')
+
+        #smaller font to test column spacing
+        #testFont = QFont()
+        #testFont.setPointSize(5)
+        #self.setFont(testFont)
+        
         filename = IconPath('sc2icon')
         if filename != error.NoPathExists:
             self.setWindowIcon(QIcon(filename))
@@ -59,18 +69,31 @@ class sc2buildUI(QMainWindow):
         menu_file = menu.addMenu('File')
 
         menu_file_new = QMenu('New',self)
-        menu_file_new_protoss = QAction('Protoss',self)
-        menu_file_new_protoss.setShortcut('Ctrl+P')
+        menu_file_new_protoss = QAction('Protoss SC2',self)
+        #menu_file_new_protoss.setShortcut('Ctrl+P')
         menu_file_new_protoss.triggered.connect(lambda state,x='protoss':self.NewWindow(x))
-        menu_file_new_terran = QAction('Terran',self)
-        menu_file_new_terran.setShortcut('Ctrl+T')
+        menu_file_new_terran = QAction('Terran SC2',self)
+        #menu_file_new_terran.setShortcut('Ctrl+T')
         menu_file_new_terran.triggered.connect(lambda state,x='terran':self.NewWindow(x))
-        menu_file_new_zerg = QAction('Zerg',self)
-        menu_file_new_zerg.setShortcut('Ctrl+Z')
+        menu_file_new_zerg = QAction('Zerg SC2',self)
+        #menu_file_new_zerg.setShortcut('Ctrl+Z') CTRL Z is commonly used for undo command
         menu_file_new_zerg.triggered.connect(lambda state,x='zerg':self.NewWindow(x))
+        
+        #additional menu items for Brood War
+        menu_file_new_protossBW = QAction('Protoss BW',self)
+        menu_file_new_protossBW.triggered.connect(lambda state,x='protossBW':self.NewWindow(x))
+        menu_file_new_terranBW = QAction('Terran BW',self)
+        menu_file_new_terranBW.triggered.connect(lambda state,x='terranBW':self.NewWindow(x))
+        menu_file_new_zergBW = QAction('Zerg BW',self)
+        menu_file_new_zergBW.triggered.connect(lambda state,x='zergBW':self.NewWindow(x))
+        
         menu_file_new.addAction(menu_file_new_protoss)
         menu_file_new.addAction(menu_file_new_terran)
         menu_file_new.addAction(menu_file_new_zerg)
+
+        menu_file_new.addAction(menu_file_new_protossBW)
+        menu_file_new.addAction(menu_file_new_terranBW)
+        menu_file_new.addAction(menu_file_new_zergBW)
         menu_file.addMenu(menu_file_new)
 
         menu_file_open = QAction('Open',self)
@@ -89,7 +112,7 @@ class sc2buildUI(QMainWindow):
         menu_file.addAction(menu_file_saveas)
 
         menu_file_exit = QAction('Exit',self)
-        menu_file_exit.setShortcut('Ctrl+X')
+        #menu_file_exit.setShortcut('Ctrl+X')
         menu_file_exit.triggered.connect(self.close)
         menu_file.addAction(menu_file_exit)
 
@@ -104,14 +127,14 @@ class sc2buildUI(QMainWindow):
         self.label.resize(450,30)
 
         self.inputTable = QTableWidget(self)
-        self.inputTable.resize(800, 45)
+        self.inputTable.resize(800, 60)
         self.inputTable.move(10,30)
         self.inputTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.inputTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.inputTable.horizontalHeader().hide()
         self.inputTable.verticalHeader().hide()
         self.inputTable.setRowCount(1)
-        self.inputTable.setRowHeight(0,30)
+        self.inputTable.setRowHeight(0,4)
         self.inputTable.cellClicked.connect(self.eraseInputItem)
 
         self.board = QTableWidget(self)
@@ -120,9 +143,12 @@ class sc2buildUI(QMainWindow):
         self.board.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.board.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.board.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        #self.board.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.board.horizontalHeader().hide()
+        self.board.horizontalHeader().setMinimumSectionSize(1) #required for windows users to have smaller than 20px columns
+        
         self.board.verticalHeader().hide()
-        self.board.setColumnCount(10000)
+        self.board.setColumnCount(10000) #10000 default
         self.board.setRowCount(50)
         for i in range(self.board.columnCount()):
             self.board.setColumnWidth(i,5)
@@ -270,7 +296,7 @@ class sc2buildUI(QMainWindow):
                 if len(text)<3:
                     err = error.WrongFileFormat
                     errmsg = error.ErrorMsg(err)
-                    msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                    msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                     return err
 
                 if text[0]:
@@ -279,17 +305,17 @@ class sc2buildUI(QMainWindow):
                     except ValueError:
                         err = error.WrongFileFormat
                         errmsg = error.ErrorMsg(err)
-                        msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                        msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                         return err
                     if version > VERSION or version<1.0:
                         err = error.IncompatibleVersion
                         errmsg = error.ErrorMsg(err)
-                        msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                        msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                         return err
                 else:
                     err = error.WrongFileFormat
                     errmsg = error.ErrorMsg(err)
-                    msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                    msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                     return err
 
                 if version == 1.0:
@@ -299,12 +325,12 @@ class sc2buildUI(QMainWindow):
                         if race not in ["protoss","terran","zerg"]:
                             err = error.WrongRace
                             errmsg = error.ErrorMsg(err)
-                            msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                             return err
                     else:
                         err = error.WrongFileFormat
                         errmsg = error.ErrorMsg(err)
-                        msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                        msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                         return err
 
                     if text[2]:
@@ -312,7 +338,7 @@ class sc2buildUI(QMainWindow):
                     else:
                         err = error.WrongFileFormat
                         errmsg = error.ErrorMsg(err)
-                        msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                        msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                         return err
 
                     self.close()
@@ -322,7 +348,7 @@ class sc2buildUI(QMainWindow):
 
                     if err < 0:
                         errmsg = error.ErrorMsg(err)
-                        msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                        msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                         return err
                     else:
                         newMD.drawBoard()
@@ -353,7 +379,7 @@ class sc2buildUI(QMainWindow):
         err = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
-            msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
             return err
 
@@ -366,7 +392,7 @@ class sc2buildUI(QMainWindow):
         err = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
-            msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
             return err
 
@@ -387,14 +413,14 @@ class sc2buildUI(QMainWindow):
                 break
         if item == 0:
             # unit doesn't exist
-            msg = QMessageBox.warning(self,'error!!!','Unappropriate unit!!!', QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!','Unit does not exist', QMessageBox.Ok, QMessageBox.Ok)
             return error.WrongUnitName
 
         self.engine.AddItem(item, "unit")
         err = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
-            msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
             return err
         else:
@@ -412,14 +438,14 @@ class sc2buildUI(QMainWindow):
         
         if item == 0:
             # unit doesn't exist
-            msg = QMessageBox.warning(self,'error!!!','Unappropriate building!!!', QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!','Building does not exist', QMessageBox.Ok, QMessageBox.Ok)
             return error.WrongBuildingName
 
         self.engine.AddItem(item, "building")
         err = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
-            msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
             return err
         else:
@@ -436,14 +462,14 @@ class sc2buildUI(QMainWindow):
                 break
         if item == 0:
             # unit doesn't exist
-            msg = QMessageBox.warning(self,'error!!!','Upgrade doesn\'t exist!!!', QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!','Upgrade doesn\'t exist', QMessageBox.Ok, QMessageBox.Ok)
             return error.WrongUpgradeName
 
         self.engine.AddItem(item, "upgrade")
         err = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
-            msg = QMessageBox.warning(self,'error!!!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
             return err
         else:
