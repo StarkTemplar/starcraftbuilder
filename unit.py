@@ -99,15 +99,15 @@ unit_dict = {
             "buildtime":50,
             "buildfrom":"robotics facility"
         },
-    "colossus":{
-        "no":10,
-        "race":"protoss",
-        "mineral":300,
-        "gas":200,
-        "supply":6,
-        "buildtime":75,
-        "buildfrom":"robotics facility",
-        "required":"robotics bay"
+        "colossus":{
+            "no":10,
+            "race":"protoss",
+            "mineral":300,
+            "gas":200,
+            "supply":6,
+            "buildtime":75,
+            "buildfrom":"robotics facility",
+            "required":"robotics bay"
         },
         "disruptor":{
             "no":11,

@@ -26,6 +26,8 @@ class Engine():
         self.queue.append(Unit('building', n,0,state='end'))
         self.chrono.append(ChronoSchedule())
         self.chrono[0].addSchedule(0, self.queue[-1])
+
+        #create starting 12 workers
         for i in range(12):
             self.queue.append(Unit('unit',w,0,state='end'))
 
@@ -326,7 +328,7 @@ class Engine():
                 return error.NoBarrackExists, 0
             return ans,building
 
-        for i in self.queue:
+        for i in self.queue: #checks if target building is in build queue
             if i.state == "end" and i.name == target and i.endtime>time:
                 if i.starttime <= time:
                     if len(i.queue) == 0 or i.queue[-1].endtime<=time:
@@ -388,7 +390,7 @@ class Engine():
 # if no available time exists, return error.NoOneGathersGasOrMineral
     def ResourceTime(self, mineral, gas, aftertime):
         # if this func approaches here, worker doesn't exist who gathers minerals or gases
-        if aftertime >= 10000:
+        if aftertime >= 1000: #default value of 10000 was causing integer error
             return error.NoOneGathersGasOrMineral
         a,b = self.AccResources(aftertime)
         if a>=mineral and b>=gas:
@@ -399,8 +401,8 @@ class Engine():
 # this supposes that a worker returns 5 minerals for every 5.4 sec. One worker on one mineral field gathers 55-60 minerals per minute (80-85 for gold minerals), depending on distance.
 # and a worker returns 4 gases for every 3.9 sec. One worker on a geyser gathers 61 gas per minute.
     def AccResources(self, time):
-        mineral = 50
-        gas = 0
+        mineral = 50 #starting minerals
+        gas = 0 #starting gas
         #tmp = Worker()
         #tmp.time = self.worker.time.copy()
 
