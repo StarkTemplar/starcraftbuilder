@@ -49,7 +49,7 @@ class sc2buildUI(QMainWindow):
 
 # initialize main interface
     def initUI(self):
-        self.setFixedSize(1280,635)
+        self.setFixedSize(1330,760)
         self.center()
         self.setWindowTitle('sc2builder')
 
@@ -127,19 +127,20 @@ class sc2buildUI(QMainWindow):
         self.label.resize(450,30)
 
         self.inputTable = QTableWidget(self)
-        self.inputTable.resize(800, 60)
-        self.inputTable.move(10,30)
+        self.inputTable.resize(800, 80)
+        self.inputTable.move(10,40)
         self.inputTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.inputTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.inputTable.horizontalHeader().hide()
         self.inputTable.verticalHeader().hide()
         self.inputTable.setRowCount(1)
-        self.inputTable.setRowHeight(0,4)
+        self.inputTable.setRowHeight(0,40)
+        self.inputTable.setIconSize(QSize(40, 40))
         self.inputTable.cellClicked.connect(self.eraseInputItem)
 
         self.board = QTableWidget(self)
-        self.board.resize(960,540)
-        self.board.move(10,85)
+        self.board.resize(960,620)
+        self.board.move(10,120)
         self.board.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.board.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.board.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -153,7 +154,7 @@ class sc2buildUI(QMainWindow):
         for i in range(self.board.columnCount()):
             self.board.setColumnWidth(i,5)
         for i in range(self.board.rowCount()):
-            self.board.setRowHeight(i,20)
+            self.board.setRowHeight(i,50)
         self.board.horizontalScrollBar().valueChanged.connect(self.moveCursor)
         self.board.cellClicked.connect(self.eraseItem)
 
@@ -163,8 +164,8 @@ class sc2buildUI(QMainWindow):
         self.cursorLine.move(0,0)
 
         self.unitList = QTableWidget(self)
-        self.unitList.resize(130, 265)
-        self.unitList.move(1140, 85)
+        self.unitList.resize(130, 323)
+        self.unitList.move(1190, 85)
         self.unitList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.unitList.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.unitList.horizontalHeader().hide()
@@ -174,8 +175,8 @@ class sc2buildUI(QMainWindow):
         self.unitList.setColumnWidth(0, 120)
 
         self.buildingList = QTableWidget(self)
-        self.buildingList.resize(130, 265)
-        self.buildingList.move(1140, 360)
+        self.buildingList.resize(130, 323)
+        self.buildingList.move(1190, 423)
         self.buildingList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.buildingList.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.buildingList.horizontalHeader().hide()
@@ -189,38 +190,43 @@ class sc2buildUI(QMainWindow):
         self.upgradeButton = []
         self.mineralButton = QPushButton(self)
         self.gasButton = QPushButton(self)
-        self.mineralButton.resize(30,30)
-        self.gasButton.resize(30,30)
+        self.mineralButton.resize(40,40) #default 30
+        self.gasButton.resize(40,40) #default 30
         self.mineralButton.move(980, 85)
-        self.gasButton.move(1010,85)
+        self.gasButton.move(1016,85) #default 1010
         filename = IconPath('mineral')
         if filename != error.NoPathExists:
             self.mineralButton.setIcon(QIcon(filename))
-        self.mineralButton.setIconSize(QSize(28,28))
+        self.mineralButton.setIconSize(QSize(38,38)) #default 28
         filename = IconPath('gas')
         if filename != error.NoPathExists:
             self.gasButton.setIcon(QIcon(filename))
-        self.gasButton.setIconSize(QSize(28,28))
+        self.gasButton.setIconSize(QSize(38,38)) #default 28
         self.mineralButton.clicked.connect(lambda: self.gatherMineral())
+        self.mineralButton.setToolTip("Move worker from gas to minerals")
         self.gasButton.clicked.connect(lambda: self.gatherGas())
+        self.gasButton.setToolTip("Move worker from minerals to gas")
+
+        #3 buttons next to minerals and gas
         self.skillButton = []
         for x in range(3):
             self.skillButton.append(QPushButton(self))
-            self.skillButton[-1].resize(30,30)
-            self.skillButton[-1].move(1040+30*x, 85)
+            self.skillButton[-1].resize(40,40)
+            self.skillButton[-1].move(1056+40*x, 85) #default +30
             self.skillButton[x].clicked.connect(lambda state, xx = x: self.useSkill(xx))
         if self.race == "protoss":
             filename = IconPath('chronoboost')
             if filename != error.NoPathExists:
                 self.skillButton[0].setIcon(QIcon(filename))
-            self.skillButton[0].setIconSize(QSize(28,28))
-
+            self.skillButton[0].setIconSize(QSize(38,38)) #default 28
+        
+        #unit table
         unit_ = list(unit_dict['unit'][self.race].items())
         for y in range(6):
             for x in range(5):
                 self.unitButton.append(QPushButton(self))
-                self.unitButton[-1].resize(30,30)
-                self.unitButton[-1].move(980+30*x,125+30*y)
+                self.unitButton[-1].resize(40,40)
+                self.unitButton[-1].move(980+40*x,125+40*y) #default +30
                 self.unitButton[-1].clicked.connect(lambda state,i=5*y+x: self.unitBuild(i))
         for i in range(len(unit_)):
             filename = IconPath(unit_[i][0])
@@ -228,14 +234,16 @@ class sc2buildUI(QMainWindow):
                 continue
             if type(filename) == type(""):
                 self.unitButton[unit_[i][1]['no']].setIcon(QIcon(filename))
-                self.unitButton[unit_[i][1]['no']].setIconSize(QSize(28,28))
-
+                self.unitButton[unit_[i][1]['no']].setIconSize(QSize(38,38)) #default 28
+                self.unitButton[unit_[i][1]['no']].setToolTip(unit_[i][0])
+        
+        #building table
         building_ = list(unit_dict['building'][self.race].items())
         for y in range(4):
             for x in range(5):
                 self.buildingButton.append(QPushButton(self))
-                self.buildingButton[-1].resize(30,30)
-                self.buildingButton[-1].move(980+30*x,315+30*y)
+                self.buildingButton[-1].resize(40,40)
+                self.buildingButton[-1].move(980+40*x,375+40*y) #default +30
                 self.buildingButton[-1].clicked.connect(lambda state,i=5*y+x: self.structureBuild(i))
         for i in range(len(building_)):
             filename = IconPath(building_[i][0])
@@ -243,14 +251,16 @@ class sc2buildUI(QMainWindow):
                 continue
             if type(filename) == type(""):
                 self.buildingButton[building_[i][1]['no']].setIcon(QIcon(filename))
-                self.buildingButton[building_[i][1]['no']].setIconSize(QSize(28,28))
+                self.buildingButton[building_[i][1]['no']].setIconSize(QSize(38,38)) #default 28
+                self.buildingButton[building_[i][1]['no']].setToolTip(building_[i][0])
 
+        #upgrade table
         upgrade_ = list(unit_dict['upgrade'][self.race].items())
         for y in range(6):
             for x in range(5):
                 self.upgradeButton.append(QPushButton(self))
-                self.upgradeButton[-1].resize(30,30)
-                self.upgradeButton[-1].move(980+30*x,445+30*y)
+                self.upgradeButton[-1].resize(40,40)
+                self.upgradeButton[-1].move(980+40*x,505+40*y) #default +30
                 self.upgradeButton[-1].clicked.connect(lambda state,i=5*y+x: self.upgradeBuild(i))
         for i in range(len(upgrade_)):
             filename = IconPath(upgrade_[i][0])
@@ -258,7 +268,8 @@ class sc2buildUI(QMainWindow):
                 continue
             if type(filename) == type(""):
                 self.upgradeButton[upgrade_[i][1]['no']].setIcon(QIcon(filename))
-                self.upgradeButton[upgrade_[i][1]['no']].setIconSize(QSize(28,28))
+                self.upgradeButton[upgrade_[i][1]['no']].setIconSize(QSize(38,38)) #default 28
+                self.upgradeButton[upgrade_[i][1]['no']].setToolTip(upgrade_[i][0])
 
         self.show()
 
@@ -484,7 +495,7 @@ class sc2buildUI(QMainWindow):
         # draw inputTable items
         self.inputTable.setColumnCount(len(self.engine.input))
         for i in range(len(self.engine.input)):
-            self.inputTable.setColumnWidth(i, 30)
+            self.inputTable.setColumnWidth(i, 40)
             filename = IconPath(self.engine.input[i][0])
             if filename == error.NoPathExists:
                 continue
@@ -492,6 +503,7 @@ class sc2buildUI(QMainWindow):
                 self.inputTable.setItem(0, i, QTableWidgetItem())
                 icon = QIcon(filename)
                 self.inputTable.item(0,i).setIcon(icon)
+                
 
         # draw items from engine.queue
         # this includes units, buildings, upgrades
