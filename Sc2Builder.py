@@ -49,7 +49,8 @@ class sc2buildUI(QMainWindow):
 
 # initialize main interface
     def initUI(self):
-        self.setFixedSize(1330,760)
+        #self.setFixedSize(1330,760)
+        self.setMinimumSize(1330,760)
         self.center()
         self.setWindowTitle('sc2builder')
 
@@ -136,7 +137,8 @@ class sc2buildUI(QMainWindow):
         self.inputTable.setRowCount(1)
         self.inputTable.setRowHeight(0,40)
         self.inputTable.setIconSize(QSize(40, 40))
-        self.inputTable.cellClicked.connect(self.eraseInputItem)
+        self.inputTable.cellDoubleClicked.connect(self.eraseInputItem)
+        
 
         self.board = QTableWidget(self)
         self.board.resize(960,620)
@@ -156,7 +158,9 @@ class sc2buildUI(QMainWindow):
         for i in range(self.board.rowCount()):
             self.board.setRowHeight(i,50)
         self.board.horizontalScrollBar().valueChanged.connect(self.moveCursor)
-        self.board.cellClicked.connect(self.eraseItem)
+        self.board.cellActivated.connect(self.enterCell)
+        self.board.cellEntered.connect(self.enterCell)
+        self.board.cellDoubleClicked.connect(self.eraseItem)
 
         self.cursorLine = QWidget(self.board)
         self.cursorLine.setStyleSheet("background-color: rgb(0,0,0)")
@@ -190,10 +194,13 @@ class sc2buildUI(QMainWindow):
         self.upgradeButton = []
         self.mineralButton = QPushButton(self)
         self.gasButton = QPushButton(self)
+        self.scoutButton = QPushButton(self)
         self.mineralButton.resize(40,40) #default 30
         self.gasButton.resize(40,40) #default 30
+        self.scoutButton.resize(40,40) #default 30
         self.mineralButton.move(980, 85)
         self.gasButton.move(1016,85) #default 1010
+        self.scoutButton.move(1054,85)
         filename = IconPath('mineral')
         if filename != error.NoPathExists:
             self.mineralButton.setIcon(QIcon(filename))
@@ -202,17 +209,23 @@ class sc2buildUI(QMainWindow):
         if filename != error.NoPathExists:
             self.gasButton.setIcon(QIcon(filename))
         self.gasButton.setIconSize(QSize(38,38)) #default 28
+        filename = IconPath('scout')
+        if filename != error.NoPathExists:
+            self.scoutButton.setIcon(QIcon(filename))
+        self.scoutButton.setIconSize(QSize(38,38)) #default 28
         self.mineralButton.clicked.connect(lambda: self.gatherMineral())
         self.mineralButton.setToolTip("Move worker from gas to minerals")
         self.gasButton.clicked.connect(lambda: self.gatherGas())
         self.gasButton.setToolTip("Move worker from minerals to gas")
+        self.scoutButton.clicked.connect(lambda: self.gatherScout())
+        self.scoutButton.setToolTip("Move worker from minerals to scouting")
 
-        #3 buttons next to minerals and gas
+        #2 buttons next to minerals, gas, and scout
         self.skillButton = []
-        for x in range(3):
+        for x in range(2):
             self.skillButton.append(QPushButton(self))
             self.skillButton[-1].resize(40,40)
-            self.skillButton[-1].move(1056+40*x, 85) #default +30
+            self.skillButton[-1].move(1096+40*x, 85) #default +30
             self.skillButton[x].clicked.connect(lambda state, xx = x: self.useSkill(xx))
         if self.race == "protoss":
             filename = IconPath('chronoboost')
@@ -411,6 +424,20 @@ class sc2buildUI(QMainWindow):
         self.newCursor(err)
         return 0
 
+# order a worker to scout who used to mine minerals
+    def gatherScout(self):
+        self.engine.AddItem("scout", "scout")
+        err = self.engine.Rearrange()
+        if err < 0:
+            errmsg = error.ErrorMsg(err)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1)
+            return err
+
+        self.drawBoard()
+        self.newCursor(err)
+        return 0
+
     def useSkill(self,no):
         if self.race == "protoss" and no == 0:
             self.engine.AddItem("chronoboost","skill")
@@ -531,23 +558,32 @@ class sc2buildUI(QMainWindow):
                 self.board.item(level, item.starttime).setBackground(QColor(255,255,255))
             self.inputNo.append( (level, item.starttime, item.inputlink) )
 
-        # draw items from engine.worker for the case of gathering gases/minerals
+        # draw items from engine.worker for the case of gathering gases/minerals/scouts
         for i in range(len(self.engine.worker.time)):
-            if self.engine.worker.gas[i] == 0:
-                continue
-            elif self.engine.worker.gas[i] < 0:
+            #if self.engine.worker.gas[i] == 0:
+             #   continue
+            
+            if self.engine.worker.gas[i] < 0:
                 text = "gas"+str(self.engine.worker.gas[i])
-            else:
+            elif self.engine.worker.gas[i] > 0:
                 text = "gas+"+str(self.engine.worker.gas[i])
+            elif self.engine.worker.scouting[i] > 0:
+                text = "scout+"+str(self.engine.worker.scouting[i])
+            else:
+                continue
+
+
             level = 0
             while self.board.columnSpan(level, self.engine.worker.time[i]) != 1 \
                 or self.board.columnSpan(level, self.engine.worker.time[i]+11) != 1:
                 level += 1
-            self.board.setSpan(level, self.engine.worker.time[i], 1, 12)
+            self.board.setSpan(level, self.engine.worker.time[i], 1, 16)
             self.board.setItem(level, self.engine.worker.time[i], QTableWidgetItem(text))
 
     def eraseItem(self, row, col):
         err = error.NoItemToDelete
+        
+        #check inputNo array. This contains all units and buildings. Not workers
         for i in self.inputNo:
             if i[0] == row and i[1] == col:
                 err = self.engine.DeleteItem(i[2])
@@ -563,6 +599,13 @@ class sc2buildUI(QMainWindow):
         self.drawBoard()
         self.board.clearSelection()
         return 0
+
+# call newCursor function when cell is entered to update status
+    def enterCell(self, row, col):
+        err = error.NoItemToDelete
+        self.newCursor(col)
+        self.board.clearSelection()
+        return err
 
     def eraseInputItem(self, row, col):
         err = error.NoItemToDelete

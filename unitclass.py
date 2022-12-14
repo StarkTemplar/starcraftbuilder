@@ -59,6 +59,7 @@ class Worker():
         self.mineral.append(m)
         self.gas.append(g)
         self.donothing.append(n)
+        self.scouting.append(s)
 
 class ChronoSchedule():
     def __init__(self):

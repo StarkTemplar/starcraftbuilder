@@ -31,8 +31,8 @@ class Engine():
         for i in range(12):
             self.queue.append(Unit('unit',w,0,state='end'))
 
-        self.worker.addSchedule(0,8,0,0,0)
-        self.worker.addSchedule(3.825,4,0,0,0)
+        self.worker.addSchedule(0,8,0,0,0) #8 workers get to a mineral patch immediatly
+        self.worker.addSchedule(3.825,4,0,0,0) #4 workers have to wait 3.825 seconds to start mining
 
 # quick sort according to 'starttime'
     def SortQueue(self, x):
@@ -92,6 +92,10 @@ class Engine():
                     return test
             elif self.input[i][1] == "mineral":
                 test = t.gatherMineral(c)
+                if test<0:
+                    return test
+            elif self.input[i][1] == "scout":
+                test = t.gatherScout(c)
                 if test<0:
                     return test
         self.queue = t.queue
@@ -499,6 +503,16 @@ class Engine():
             self.worker.addSchedule(time, 0, 1, -1, 0)
         elif mineral_count > 0:
             self.worker.addSchedule(time, -1, 1, 0, 0)
+        else:
+            # no workers available
+            return error.NotEnoughWorkers
+        return 0
+
+    def gatherScout(self, time):
+        mineral_count, mineral_max_count = self.countMineralWorkers(time)
+        
+        if mineral_count > 0:
+            self.worker.addSchedule(time, -1, 0, 0, 1)
         else:
             # no workers available
             return error.NotEnoughWorkers
