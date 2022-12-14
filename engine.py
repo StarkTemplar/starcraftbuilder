@@ -24,8 +24,11 @@ class Engine():
             raise
 
         self.queue.append(Unit('building', n,0,state='end'))
-        self.chrono.append(ChronoSchedule())
-        self.chrono[0].addSchedule(0, self.queue[-1])
+        
+        #start chronoboost on starting nexus
+        if race == 'protoss':
+            self.chrono.append(ChronoSchedule())
+            self.chrono[0].addSchedule(0, self.queue[-1])
 
         #create starting 12 workers
         for i in range(12):

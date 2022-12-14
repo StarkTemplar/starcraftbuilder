@@ -12,7 +12,7 @@ from PyQt5 import *
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
-VERSION = 1.0
+VERSION = 1.2
 
 def SecondToStr(sec):
     m = sec // 60
@@ -141,7 +141,7 @@ class sc2buildUI(QMainWindow):
         
 
         self.board = QTableWidget(self)
-        self.board.resize(960,620)
+        self.board.resize(960,600)
         self.board.move(10,120)
         self.board.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.board.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
@@ -162,9 +162,17 @@ class sc2buildUI(QMainWindow):
         self.board.cellEntered.connect(self.enterCell)
         self.board.cellDoubleClicked.connect(self.eraseItem)
 
+        #change background of every 60 columns to denote a minute
+        for i in range(self.board.columnCount()):
+            if i % 60 == 0:
+                for j in range(self.board.rowCount()):
+                    self.board.setItem(j, i, QTableWidgetItem (""))
+                    self.board.item(j, i).setBackground(QColor(140,140,140))
+
+        #moveable cursor 
         self.cursorLine = QWidget(self.board)
         self.cursorLine.setStyleSheet("background-color: rgb(0,0,0)")
-        self.cursorLine.resize(2,540)
+        self.cursorLine.resize(2,600)
         self.cursorLine.move(0,0)
 
         self.unitList = QTableWidget(self)
@@ -386,9 +394,10 @@ class sc2buildUI(QMainWindow):
 
     def About(self):
         msg = QMessageBox.information(self,"About...",\
-            "sc2builder ver %1.1f\n"%VERSION+\
-            "Made by 민병욱(Min Byeonguk)\n"+\
+            "sc2builder version: " + str(VERSION) +\
+            "\nMade by 민병욱(Min Byeonguk)\n"+\
             "contact me : phraust1612@gmail.com\n"+\
+            "Updated by StarkTemplar\n"+\
             "https://github.com/phraust1612",\
             QMessageBox.Ok, QMessageBox.Ok)
 
@@ -549,13 +558,13 @@ class sc2buildUI(QMainWindow):
             # and if it was boosted partially, it gets little lighter blue background
             if item.type == 'unit' or item.type == 'upgrade':
                 if item.boosted > 1:
-                    self.board.item(level, item.starttime).setBackground(QColor(0,0,255,50))
+                    self.board.item(level, item.starttime).setBackground(QColor(128,182,255)) #darker blue
                 elif item.boosted == 1:
-                    self.board.item(level, item.starttime).setBackground(QColor(0,0,255,25))
+                    self.board.item(level, item.starttime).setBackground(QColor(191,219,255)) #lighter blue
                 else:
-                    self.board.item(level, item.starttime).setBackground(QColor(255,255,255))
+                    self.board.item(level, item.starttime).setBackground(QColor(255,255,255)) #white
             else:
-                self.board.item(level, item.starttime).setBackground(QColor(255,255,255))
+                self.board.item(level, item.starttime).setBackground(QColor(255,255,255)) #white
             self.inputNo.append( (level, item.starttime, item.inputlink) )
 
         # draw items from engine.worker for the case of gathering gases/minerals/scouts
