@@ -28,7 +28,7 @@ class Engine():
         #start chronoboost on starting nexus
         if race == 'protoss':
             self.chrono.append(ChronoSchedule())
-            self.chrono[0].addSchedule(0, self.queue[-1])
+            #self.chrono[0].addSchedule(0, self.queue[-1]) #only use if you want starting nexus to start with chronoboost
 
         #create starting 12 workers
         for i in range(12):

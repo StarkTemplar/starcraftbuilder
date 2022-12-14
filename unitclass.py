@@ -1,3 +1,4 @@
+from ast import Try
 import error
 from unit import *
 
@@ -74,6 +75,9 @@ class ChronoSchedule():
         return 0
 
     def checkTargetIsBoosted(self, t):
-        if self.target[-1] == t:
-            return error.AlreadyBoosted
-        return 0
+        if len(self.target)>0: #starting nexus target array will be empty
+            if self.target[-1] == t:
+                return error.AlreadyBoosted
+            return 0
+        else:
+            return 0
