@@ -78,7 +78,9 @@ class Engine():
                     if c<0:
                         return c
                     target = unit_dict[self.input[i][1]][self.race][self.input[i][0]]['buildfrom']
-                    t.Chronoboost(target , c)
+                    c = t.Chronoboost(target , c)
+                    if c<0:
+                        return c
                 c = t.BuildUnit(self.input[i][1], self.input[i][0], c, False, i)
                 if c<0:
                     return c
@@ -163,8 +165,14 @@ class Engine():
                             boosted = 2
                             build_time = (int)(build_time / 1.15)
                 if len(i.time)>0 and i.time[-1] <= real_time and i.target[-1] == building:
-                    boosted = 3
-                    build_time = (int)(build_time / 1.15)
+                    chronoRemaining = (20 - (real_time - i.time[-1])) #only look for chronoboost within the past 20 seconds.
+                    if chronoRemaining > 0: 
+                        if build_time <= chronoRemaining: #if full build is under chrono
+                            boosted = 3
+                            build_time = (int)(build_time / 1.50) #probe would go from 12 to 8 seconds
+                        else: #build time is larger than chronoboost duration
+                            boosted = 1
+                            build_time = (int)(build_time - chronoRemaining + (chronoRemaining / 1.50)) #chronoboostRemaining is subtractd from the build and is replaced with chronoRemaining / 1.5
 
         self.queue.append(Unit(typ,unit, real_time, real_time+build_time))
         self.queue.append(Unit(typ,unit, real_time+build_time, state='end'))
@@ -566,11 +574,12 @@ class Engine():
             if i.name == target and i.state == 'end' and i.starttime <= time <= i.endtime:
                 test = False
                 for j in self.chrono:
-                    test = j.checkTargetIsBoosted(i)
+                    test = j.checkTargetIsBoosted(i, time)
                     if test == True:
                         break
                 if test == False:
                     target_object = i
+
         if target_object == 0:
             return error.AlreadyBoosted
 
@@ -581,11 +590,13 @@ class Engine():
                 chrono_schedule = i
                 break
 
-        if test == error.ChronoNotAvailable:
+        if test == error.ChronoNotAvailable or test == error.ChronoCooldown:
             return test
 
         # try to modify unit/upgrade build time due to changed chronoboosting schedule
         # (for the case of changing boosting duration)
+        
+        #doesn't seem to be in use for unit chronoboosting
         for i in self.queue:
             if i.state == "start" and i.endtime > time and i.starttime<time:
                 link = i.linked

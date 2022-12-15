@@ -465,7 +465,19 @@ class sc2buildUI(QMainWindow):
 
         self.engine.AddItem(item, "unit")
         err = self.engine.Rearrange()
-        if err < 0:
+        if err == error.AlreadyBoosted:
+            errmsg = error.ErrorMsg(err)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1) #delete most recent unit
+            self.engine.DeleteItem(-1) #delete most recent chronoboost
+            return err
+        elif err == error.ChronoNotAvailable or err == error.ChronoCooldown:
+            errmsg = error.ErrorMsg(err)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1) #delete most recent unit
+            self.engine.DeleteItem(-1) #delete most recent chronoboost
+            return err
+        elif err < 0:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)

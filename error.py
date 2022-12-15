@@ -62,11 +62,11 @@ def ErrorMsg(e):
     elif e == NoRefineryExists:
         return "No refinery exists"
     elif e == ChronoCooldown:
-        return "Chronoboost in cooldown"
+        return "Chronoboost in cooldown. Removing latest chronoboost from queue."
     elif e == ChronoNotAvailable:
-        return "Chronoboost is not available - you may not have a nexus"
+        return "Chronoboost is not available. Removing latest chronoboost from queue."
     elif e == AlreadyBoosted:
-        return "All buildings are already boosted"
+        return "All buildings are already boosted. Removing latest chronoboost from queue."
     elif e == UnboostableBuilding:
         return "That building isn't able to be chronoboosted"
     elif e == WrongIndex:
