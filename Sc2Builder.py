@@ -46,6 +46,7 @@ class sc2buildUI(QMainWindow):
         self.inputNo = []
         self.engine = Engine(race)
         self.initUI()
+        self.autoscrollOption = True
 
 # initialize main interface
     def initUI(self):
@@ -117,6 +118,13 @@ class sc2buildUI(QMainWindow):
         menu_file_exit.triggered.connect(self.close)
         menu_file.addAction(menu_file_exit)
 
+        menu_view = menu.addMenu('View')
+        menu_view_autoscroll = QAction('Autoscroll', self, checkable=True)
+        menu_view_autoscroll.setStatusTip('Autoscroll table as units are built')
+        menu_view_autoscroll.setChecked(True)
+        menu_view_autoscroll.triggered.connect(self.AutoscrollToggle)
+        menu_view.addAction(menu_view_autoscroll)
+
         menu_help = menu.addMenu('Help')
         menu_help_about = QAction('About',self)
         menu_help_about.setShortcut('Ctrl+H')
@@ -138,6 +146,7 @@ class sc2buildUI(QMainWindow):
         self.inputTable.setRowHeight(0,40)
         self.inputTable.setIconSize(QSize(40, 40))
         self.inputTable.cellDoubleClicked.connect(self.eraseInputItem)
+        #self.inputTable.setAutoScroll(True)
         
 
         self.board = QTableWidget(self)
@@ -161,6 +170,7 @@ class sc2buildUI(QMainWindow):
         self.board.cellActivated.connect(self.enterCell)
         self.board.cellEntered.connect(self.enterCell)
         self.board.cellDoubleClicked.connect(self.eraseItem)
+        #self.board.setAutoScroll(True)
 
         #change background of every 60 columns to denote a minute
         for i in range(self.board.columnCount()):
@@ -293,6 +303,14 @@ class sc2buildUI(QMainWindow):
                 self.upgradeButton[upgrade_[i][1]['no']].setToolTip(upgrade_[i][0])
 
         self.show()
+
+#toggle autoscroll variable
+    def AutoscrollToggle(self, state):
+        
+        if state:
+            self.autoscrollOption = True
+        else:
+            self.autoscrollOption = False
 
 # move the window to the center
     def center(self):
@@ -540,6 +558,8 @@ class sc2buildUI(QMainWindow):
         self.board.clearSpans()
         self.inputTable.clearSpans()
 
+        storedRow = int
+
         # draw inputTable items
         self.inputTable.setColumnCount(len(self.engine.input))
         for i in range(len(self.engine.input)):
@@ -551,6 +571,13 @@ class sc2buildUI(QMainWindow):
                 self.inputTable.setItem(0, i, QTableWidgetItem())
                 icon = QIcon(filename)
                 self.inputTable.item(0,i).setIcon(icon)
+
+            #store the row number so we can autoscroll horizontal bar
+            storedRow = i
+
+        #autoscroll inputTable only if setting is true
+        if self.autoscrollOption:
+            self.inputTable.scrollToItem(self.inputTable.item(0,storedRow), QAbstractItemView.EnsureVisible)
                 
 
         # draw items from engine.queue
@@ -565,6 +592,9 @@ class sc2buildUI(QMainWindow):
 
             self.board.setSpan(level, item.starttime, 1, item.endtime - item.starttime)
             self.board.setItem(level, item.starttime, QTableWidgetItem(item.name))
+
+            #store the row number so we can autoscroll horizontal bar
+            storedRow = item.starttime
 
             # for the case of chronoboosted units or upgrades would have blue background color
             # and if it was boosted partially, it gets little lighter blue background
@@ -600,6 +630,12 @@ class sc2buildUI(QMainWindow):
                 level += 1
             self.board.setSpan(level, self.engine.worker.time[i], 1, 16)
             self.board.setItem(level, self.engine.worker.time[i], QTableWidgetItem(text))
+    
+        #autoscroll board only if setting is true
+        if self.autoscrollOption:
+            self.board.scrollToItem(self.board.item(0,storedRow), QAbstractItemView.EnsureVisible)
+            
+
 
     def eraseItem(self, row, col):
         err = error.NoItemToDelete
