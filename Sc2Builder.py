@@ -51,7 +51,7 @@ class sc2buildUI(QMainWindow):
 # initialize main interface
     def initUI(self):
         #self.setFixedSize(1330,760)
-        self.setMinimumSize(1330,760)
+        self.setMinimumSize(1400,760)
         self.center()
         self.setWindowTitle('sc2builder')
 
@@ -132,11 +132,11 @@ class sc2buildUI(QMainWindow):
         menu_help.addAction(menu_help_about)
         
         self.label = QLabel(self)
-        self.label.move(820,30)
+        self.label.move(980,30)
         self.label.resize(450,30)
 
         self.inputTable = QTableWidget(self)
-        self.inputTable.resize(800, 80)
+        self.inputTable.resize(960, 80)
         self.inputTable.move(10,40)
         self.inputTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.inputTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -186,7 +186,7 @@ class sc2buildUI(QMainWindow):
         self.cursorLine.move(0,0)
 
         self.unitList = QTableWidget(self)
-        self.unitList.resize(130, 323)
+        self.unitList.resize(200, 323)
         self.unitList.move(1190, 85)
         self.unitList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.unitList.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -194,10 +194,10 @@ class sc2buildUI(QMainWindow):
         self.unitList.verticalHeader().hide()
         self.unitList.setColumnCount(1)
         self.unitList.setRowCount(50)
-        self.unitList.setColumnWidth(0, 120)
+        self.unitList.setColumnWidth(0, 195)
 
         self.buildingList = QTableWidget(self)
-        self.buildingList.resize(130, 323)
+        self.buildingList.resize(200, 323)
         self.buildingList.move(1190, 423)
         self.buildingList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.buildingList.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -205,7 +205,7 @@ class sc2buildUI(QMainWindow):
         self.buildingList.verticalHeader().hide()
         self.buildingList.setColumnCount(1)
         self.buildingList.setRowCount(50)
-        self.buildingList.setColumnWidth(0, 120)
+        self.buildingList.setColumnWidth(0, 195)
 
         self.unitButton = []
         self.buildingButton = []
