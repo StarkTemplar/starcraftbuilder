@@ -133,7 +133,7 @@ class sc2buildUI(QMainWindow):
         
         self.label = QLabel(self)
         self.label.move(980,30)
-        self.label.resize(450,30)
+        self.label.resize(450,60)
 
         self.inputTable = QTableWidget(self)
         self.inputTable.resize(960, 80)
@@ -681,7 +681,11 @@ class sc2buildUI(QMainWindow):
 
         mineral, gas = self.engine.AccResources(self.cursor)
         curSup, maxSup = self.engine.CurrentSupply(self.cursor)
+        wScouting = self.engine.countScoutingWorkers(self.cursor)
+        wBuilding = self.engine.countDoingNothingWorkers(self.cursor)
         text = "time : "+SecondToStr(self.cursor)+", mineral : "+str(mineral)+", gas : "+str(gas)+", supply : "+str(curSup)+"/"+str(maxSup)
+        text += "\nworkers scouting : " + str(wScouting)
+        text += ", workers building : " + str(wBuilding)
         self.label.setText(text)
 
         ind = 0

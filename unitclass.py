@@ -51,7 +51,7 @@ class Worker():
         self.time = []
         self.mineral = []
         self.gas = []
-        self.donothing = []
+        self.donothing = [] #doing nothing or building
         self.scouting = []
     # if m is negative, mineral schedule preserves
     # same as others

@@ -471,7 +471,7 @@ class Engine():
             if i.state == "end" and i.name == ("assimilator" or "refinery" or "extractor") and i.starttime <= time:
                 max_count += 3
         return count, max_count
-
+# return the number of workers doing nothing workers or building
     def countDoingNothingWorkers(self, time):
         count = 0
         for i in range(len(self.worker.time)):
