@@ -479,7 +479,7 @@ class Engine():
                 continue
             count += self.worker.donothing[i]
         return count
-
+# return the number of workers scouting
     def countScoutingWorkers(self, time):
         count = 0
         for i in range(len(self.worker.time)):
