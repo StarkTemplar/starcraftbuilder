@@ -318,7 +318,7 @@ class sc2buildUI(QMainWindow):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-
+#menu items
     def Save(self):
         if self.savefilename == "":
             self.SaveAs()
@@ -465,6 +465,7 @@ class sc2buildUI(QMainWindow):
         self.newCursor(err)
         return 0
 
+#use special skill
     def useSkill(self,no):
         if self.race == "protoss" and no == 0:
             self.engine.AddItem("chronoboost","skill")

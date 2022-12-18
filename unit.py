@@ -151,7 +151,7 @@ unit_dict = {
             "gas":400,
             "supply":8,
             "buildtime":114,
-            "buildfrom":"mothership core",
+            "buildfrom":"nexus",
             "required":"fleet beacon"
         },
         "oracle":{
@@ -180,28 +180,11 @@ unit_dict = {
             "gas":0,
             "supply":4,
             "buildtime":8.57,
-            "buildfrom":["high templar","high templar"]
+            "buildfrom":["high templar","high templar","warp high templar","warp high templar","warp dark templar","warp dark templar"]
         },
-        "archon_d+h":{
-            "no":19,
-            "race":"protoss",
-            "mineral":0,
-            "gas":0,
-            "supply":4,
-            "buildtime":8.57,
-            "buildfrom":["high templar","dark templar"]
-        },
-        "archon_d+d":{
-            "no":20,
-            "race":"protoss",
-            "mineral":0,
-            "gas":0,
-            "supply":4,
-            "buildtime":8.57,
-            "buildfrom":["dark templar","dark templar"]
-        },
+        
         "warp zealot":{
-            "no":21,
+            "no":20,
             "race":"protoss",
             "mineral":100,
             "gas":0,
@@ -210,7 +193,7 @@ unit_dict = {
             "buildfrom":"warp gate"
         },
         "warp stalker":{
-            "no":22,
+            "no":21,
             "race":"protoss",
             "mineral":125,
             "gas":50,
@@ -220,7 +203,7 @@ unit_dict = {
             "required":"cybernetics core"
         },
         "warp sentry":{
-            "no":23,
+            "no":22,
             "race":"protoss",
             "mineral":50,
             "gas":100,
@@ -230,7 +213,7 @@ unit_dict = {
             "required":"cybernetics core"
         },
         "warp adept":{
-            "no":24,
+            "no":23,
             "race":"protoss",
             "mineral":100,
             "gas":25,
@@ -240,7 +223,7 @@ unit_dict = {
             "required":"cybernetics core"
         },
         "warp high templar":{
-            "no":25,
+            "no":24,
             "race":"protoss",
             "mineral":50,
             "gas":150,
@@ -250,7 +233,7 @@ unit_dict = {
             "required":"templar archives"
         },
         "warp dark templar":{
-            "no":26,
+            "no":25,
             "race":"protoss",
             "mineral":125,
             "gas":125,

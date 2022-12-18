@@ -71,6 +71,7 @@ class Engine():
     def Rearrange (self):
         t = Engine(self.race)
         c = 0
+        print("\n*** New Simulation ***")
         for i in range(len(self.input)):
             if self.input[i][1] == 'unit' or self.input[i][1] == 'upgrade':
                 if i>0 and self.input[i-1][0] == "chronoboost":
@@ -117,7 +118,7 @@ class Engine():
 # and return real actual time it starts to build itself
     def BuildUnit (self, typ, unit, time, flag=False, inputno=-1):
         if time < 0:
-            # unappropriate time
+            # inappropriate time
             return error.NegativeTime
         condition_time,condition_object = self.ConditionCheck(unit,typ,time)
         if condition_time == -1:
@@ -182,9 +183,9 @@ class Engine():
         self.queue[-2].boosted = boosted
 
         # for the case of protoss units from warp gate, unit completes immediately
-        if typ == 'unit' and unit_dict[typ][self.race][unit]['buildfrom'] == 'warp gate':
-            self.queue[-1].starttime = self.queue[-2].starttime
-            self.queue[-1].name = self.queue[-1].name[5:]
+        #if typ == 'unit' and unit_dict[typ][self.race][unit]['buildfrom'] == 'warp gate':
+         #   self.queue[-1].starttime = self.queue[-2].starttime
+          #  self.queue[-1].name = self.queue[-1].name[5:]
 
         # for the case of archons, rename it
         if "archon" in unit:
@@ -204,21 +205,33 @@ class Engine():
             for i in building:
                 i.add(self.queue[-2])
 
-        print("no:",inputno,"time:",real_time, unit,":",build_time, "boosted:",boosted)
+        print("inputno:",inputno," build starttime:",real_time," buildtime:",build_time," build endtime:", real_time + build_time, " unit:",unit," boosted:",boosted)
 
         # in case of build a worker, it needs to be scheduled
         count, max_count = self.countMineralWorkers(time)
         if self.queue[-1].name == ("probe" or "drone" or "scv"):
             if count<max_count:
                 self.worker.addSchedule(self.queue[-1].starttime, 1, 0, 0, 0)
+        
+        # in case of building a building, subtract a mineral worker for x time depending on race
+        # protoss 2 seconds, terran whole build time, zerg loses a worker
+        try: #check if building morphs from another building ie terran addons or zerg buildings
+            buildingMorphed = unit_dict[typ][self.race][unit]["consume"]
+        except KeyError:
+            buildingMorphed = "none"
 
-        if self.queue[-1].name == ("nexus" or "command center" or "hatchery"):
-            d = self.worker.donothing[-1]
-            btime = unit_dict['building'][self.race]['nexus']['buildtime']
-            if d > max_count - count:
-                self.worker.addSchedule(self.queue[-1].starttime, max_count-count, 0, count-max_count, 0)
-            else:
-                self.worker.addSchedule(self.queue[-1].starttime, d, 0, 0, 0)
+        if typ == 'building':
+            if self.race == 'protoss':
+                self.worker.addSchedule(real_time, -1, 0, 1, 0) #remove worker from minerals to start building
+                self.worker.addSchedule(real_time + 2, 1, 0, -1, 0) #add worker to minerals 2 seconds later
+            elif self.race == 'terran':
+                if buildingMorphed == "none":
+                    self.worker.addSchedule(self.queue[-1].starttime, -1, 0, 1, 0)#remove worker from minerals to start building
+                    self.worker.addSchedule(self.queue[-1].starttime + build_time + 2, 1, 0, -1, 0) #add worker to minerals when building is done building + 2 seconds
+            else: #zerg
+                if buildingMorphed == "none":
+                    self.worker.addSchedule(self.queue[-1].starttime, -1, 0, 1, 0)#might need updated to also remove worker unit
+
 
         # for the case of protoss nexus, you get one more possible chrono schedule
         if self.queue[-1].name == "nexus":
@@ -328,18 +341,19 @@ class Engine():
             building = []
             for t in target:
                 for i in self.queue:
-                    if len(building) >= len(target):
-                        break
+                    #if len(building) >= 2: #len(target):
+                     #   break
                     if i in building:
-                        continue
+                        continue # if i is already in building list skip this iteration
                     if i.state == "end" and i.name == t and i.endtime == maxtime:
                         building.append(i)
             ans = 0
             for i in building:
                 if ans<i.starttime:
                     ans = i.starttime
-
-            if len(building) < len(target):
+            
+            #if target list is longer than buildings in queue
+            if len(building) < 2: #len(target):
                 return error.NoBarrackExists, 0
             return ans,building
 
