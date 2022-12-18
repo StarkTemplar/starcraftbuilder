@@ -182,19 +182,11 @@ class Engine():
         self.queue[-2].setInputLink(inputno)
         self.queue[-2].boosted = boosted
 
-        # for the case of protoss units from warp gate, unit completes immediately
-        #if typ == 'unit' and unit_dict[typ][self.race][unit]['buildfrom'] == 'warp gate':
-         #   self.queue[-1].starttime = self.queue[-2].starttime
-          #  self.queue[-1].name = self.queue[-1].name[5:]
-
-        # for the case of archons, rename it
-        if "archon" in unit:
-            self.queue[-1].name = "archon"
-
-        # for the case of morphing/merging from units, they disappears
-        if type(building) == Unit and building.type == 'unit':
+        # handles morphing/merging units, set the endtime to make them disappear
+        # building variable refers to the prerequisite unit(s). This is typically a building but ocassionally a unit IE archon
+        if type(building) == Unit and building.type == 'unit':#units that morph from a single unit IE baneling
             building.endtime = real_time
-        elif type(building) == list:
+        elif type(building) == list: #units that morph from multiple units IE archon
             for i in building:
                 i.endtime = real_time
 
@@ -204,22 +196,25 @@ class Engine():
         elif type(building) == list:
             for i in building:
                 i.add(self.queue[-2])
-
+        
+        #output to engine window
         print("inputno:",inputno," build starttime:",real_time," buildtime:",build_time," build endtime:", real_time + build_time, " unit:",unit," boosted:",boosted)
 
-        # in case of build a worker, it needs to be scheduled
+        # in case of build a worker, it needs to be added to worker mineral schedule
         count, max_count = self.countMineralWorkers(time)
         if self.queue[-1].name == ("probe" or "drone" or "scv"):
             if count<max_count:
                 self.worker.addSchedule(self.queue[-1].starttime, 1, 0, 0, 0)
         
-        # in case of building a building, subtract a mineral worker for x time depending on race
-        # protoss 2 seconds, terran whole build time, zerg loses a worker
-        try: #check if building morphs from another building ie terran addons or zerg buildings
-            buildingMorphed = unit_dict[typ][self.race][unit]["consume"]
+        #check if building morphs from another building ie terran addons or zerg buildings
+        #buildings that morph are warp gates or lair etc.
+        try: 
+            buildingMorphed = unit_dict[typ][self.race][unit]["buildfrom"]
         except KeyError:
             buildingMorphed = "none"
 
+        # in case of building a building, subtract a mineral worker for x time depending on race
+        # protoss 2 seconds, terran whole build time, zerg loses a worker
         if typ == 'building':
             if self.race == 'protoss':
                 self.worker.addSchedule(real_time, -1, 0, 1, 0) #remove worker from minerals to start building
@@ -231,19 +226,14 @@ class Engine():
             else: #zerg
                 if buildingMorphed == "none":
                     self.worker.addSchedule(self.queue[-1].starttime, -1, 0, 1, 0)#might need updated to also remove worker unit
+            if buildingMorphed != "none": # if this building morphs from a different building.
+                building.endtime = real_time #Set the endtime of morphing building
 
 
         # for the case of protoss nexus, you get one more possible chrono schedule
         if self.queue[-1].name == "nexus":
             self.chrono.append(ChronoSchedule())
             self.chrono[-1].addSchedule(self.queue[-1].starttime, self.queue[-1])
-
-        # for the case of protoss warp gate, it actually consumes a matching gateway
-        if self.queue[-1].name == "warp gate":
-            for i in condition_object:
-                if i.name == "gateway":
-                    i.endtime = real_time
-                    break
 
         self.queue = self.SortQueue(self.queue)
         return real_time
@@ -325,12 +315,14 @@ class Engine():
             if required_supply > max_supply:
                 return error.SupplyBlocked, 0
 
-        # building type has nothing to do in this function
-        # since it has no supply nor build queue
-        if typ == 'building':
-            return time,0
 
-        target = unit_dict[typ][self.race][unit]['buildfrom']
+        try: 
+            target = unit_dict[typ][self.race][unit]['buildfrom']
+        except KeyError:
+            target = "none"
+        if target == "none":
+            return time,0 #if buildfrom is empty, this is a building that is built from scratch IE pylon, gateway. A building that morphs like a warp gate or lair will have a build from property
+
         available = 0
         building = 0
         # suppose the game ends before 10000 seconds (2hrs 46mins 40secs)

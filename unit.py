@@ -371,6 +371,7 @@ unit_dict = {
             "gas":0,
             "buildtime":7,
             "supplyoffer":0,
+            "buildfrom":"gateway",
             "required":["gateway","warp gate research"]
         },
         "stargate":{
