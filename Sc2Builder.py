@@ -51,7 +51,7 @@ class sc2buildUI(QMainWindow):
 # initialize main interface
     def initUI(self):
         #self.setFixedSize(1330,760)
-        self.setMinimumSize(1400,760)
+        self.setMinimumSize(1400,840)
         self.center()
         self.setWindowTitle('sc2builder')
 
@@ -187,7 +187,7 @@ class sc2buildUI(QMainWindow):
 
         self.unitList = QTableWidget(self)
         self.unitList.resize(200, 323)
-        self.unitList.move(1190, 85)
+        self.unitList.move(1190, 165)
         self.unitList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.unitList.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.unitList.horizontalHeader().hide()
@@ -198,7 +198,7 @@ class sc2buildUI(QMainWindow):
 
         self.buildingList = QTableWidget(self)
         self.buildingList.resize(200, 323)
-        self.buildingList.move(1190, 423)
+        self.buildingList.move(1190, 503)
         self.buildingList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.buildingList.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.buildingList.horizontalHeader().hide()
@@ -270,7 +270,7 @@ class sc2buildUI(QMainWindow):
         
         #building table
         building_ = list(unit_dict['building'][self.race].items())
-        for y in range(4):
+        for y in range(5):
             for x in range(5):
                 self.buildingButton.append(QPushButton(self))
                 self.buildingButton[-1].resize(40,40)
@@ -291,7 +291,7 @@ class sc2buildUI(QMainWindow):
             for x in range(5):
                 self.upgradeButton.append(QPushButton(self))
                 self.upgradeButton[-1].resize(40,40)
-                self.upgradeButton[-1].move(980+40*x,505+40*y) #default +30
+                self.upgradeButton[-1].move(980+40*x,585+40*y) #default +30
                 self.upgradeButton[-1].clicked.connect(lambda state,i=5*y+x: self.upgradeBuild(i))
         for i in range(len(upgrade_)):
             filename = IconPath(upgrade_[i][0])
