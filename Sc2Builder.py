@@ -593,7 +593,7 @@ class sc2buildUI(QMainWindow):
 
             self.board.setSpan(level, item.starttime, 1, item.endtime - item.starttime)
             self.board.setItem(level, item.starttime, QTableWidgetItem(item.name))
-
+            self.board.item(level,item.starttime).setToolTip(item.name + "\nstart: " + SecondToStr(item.starttime) + "\nend: " + SecondToStr(item.endtime))
             #store the row number so we can autoscroll horizontal bar
             storedRow = item.starttime
 
@@ -631,6 +631,7 @@ class sc2buildUI(QMainWindow):
                 level += 1
             self.board.setSpan(level, self.engine.worker.time[i], 1, 16)
             self.board.setItem(level, self.engine.worker.time[i], QTableWidgetItem(text))
+            self.board.item(level,self.engine.worker.time[i]).setToolTip(text + "\nstart: " + SecondToStr(self.engine.worker.time[i]))
     
         #autoscroll board only if setting is true
         if self.autoscrollOption:
