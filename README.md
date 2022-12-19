@@ -4,35 +4,29 @@
     </a>
 </div>
 
-# Sc2Builder
+# Starcraft: Brood War and Starcraft II Build Order Builder
 
-17.ver 1.0 released
+Forked from https://github.com/phraust1612/sc2builder
+
+## Roadmap
+
+Building out unit lists for Starcraft 2 Terran and Zerg.
+Work out bugs.
+Begin adding in SC Brood War units.
 
 ## About
 
-[Sc2Builder](https://github.com/phraust1612/sc2builder) is [Min Byeonguk](https://github.com/phraust1612)'s build-order calculator of [Starcraft II - Legacy of the Void](https://starcraft2.com) in GUI. It gives you a demonstration of Starcraft II in a graph, so you can easily check resource, units, buildings or etc before you play real Starcraft II. Through Sc2Builder, you can optimize your old build-order, or you can make a new one. Sc2Builder provides save and load build-orders, so you can share your proud build-order on social medias.
-
-
-If you want to report some bugs, please contact me via phraust1612@gmail.com
-
-## Assumption
-
-+ Game speed is 'faster' in Starcraft II.
-+ Each expansion has 8 mineral fields and 2 vespin gas layers.
-+ Sc2Builder doesn't support gold mineral fields.
-+ For each mineral field and gas layer, at most 2 and 3 workers can work on it.
-+ Depletion of mineral fields and gas layers will not be applied.
-+ Maximum game time is 2hrs 46mins 40secs and Sc2Builder will not support later than it.
+Build order calculator for Starcraft: Brood War and Starcraft II in GUI. It gives you a demonstration of Starcraft II in a graph, so you can easily check resources, units, buildings before you play a live game.
 
 ## How to Use
 
 ### git
 
-You can install Sc2Builder with git :
+You can install Starcraft Builder with git :
 
 ```shell
-$ git clone https://github.com/phraust1612/sc2builder.git
-$ python3 sc2builder/Sc2Builder protoss
+$ git clone https://github.com/StarkTemplar/starcraftbuilder.git
+$ python3 sc2builder/Sc2Builder
 ```
 
 You can pass your race via command line, but it's not necessary.
@@ -43,6 +37,3 @@ If sys gets no argv about race, it will automatically bring protoss.
 
 You can also directly download zip files that matches to your OS.
 Unzip it and execute 'Sc2Builder.exe'
-
-[Windows 32bits download link](https://sourceforge.net/projects/sc2builder/files/Sc2Builder_Windows32.zip/download)
-[Linux 64bits download link](https://sourceforge.net/projects/sc2builder/files/Sc2Builder_Linux32.zip/download)
