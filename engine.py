@@ -190,12 +190,20 @@ class Engine():
             for i in building:
                 i.endtime = real_time
 
+         #check if building is an addon. Addons don't remove the previous building
+        try: 
+            buildingAddon = unit_dict[typ][self.race][unit]["addon"]
+        except KeyError:
+            buildingAddon = "none"
+
         # if it's an unit or upgrade, push this item into its building's queue
-        if type(building) == Unit and typ != 'building':
+        if type(building) == Unit and typ != 'building': #zerg unit morphing
             building.add(self.queue[-2])
-        elif type(building) == list:
+        elif type(building) == list: #archon unit morphing from multiple templars
             for i in building:
                 i.add(self.queue[-2])
+        elif (typ == "building" and buildingAddon != "none"):
+            building.add(self.queue[-2])
         
         #output to engine window
         print("inputno:",inputno," build starttime:",real_time," buildtime:",build_time," build endtime:", real_time + build_time, " unit:",unit," boosted:",boosted)
@@ -212,12 +220,6 @@ class Engine():
             buildingMorphed = unit_dict[typ][self.race][unit]["buildfrom"]
         except KeyError:
             buildingMorphed = "none"
-
-        #check if building is an addon. Addons don't remove the previous building
-        try: 
-            buildingAddon = unit_dict[typ][self.race][unit]["addon"]
-        except KeyError:
-            buildingAddon = "none"
 
         # in case of building a building, subtract a mineral worker for x time depending on race
         # protoss 2 seconds, terran whole build time, zerg loses a worker

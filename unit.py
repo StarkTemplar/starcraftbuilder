@@ -557,7 +557,8 @@ unit_dict = {
             "mineral":400,
             "gas":0,
             "buildtime":71,
-            "supplyoffer":15
+            "supplyoffer":15,
+            "addon":"true"
         },
         "orbital command":{
             "no":1,
@@ -567,7 +568,8 @@ unit_dict = {
             "buildtime":25,
             "supplyoffer":15,
             "buildfrom":"command center",
-            "required":"barracks"
+            "required":"barracks",
+            "addon":"true"
         },
         "planetary fortress":{
             "no":2,
@@ -577,7 +579,8 @@ unit_dict = {
             "buildtime":36,
             "supplyoffer":15,
             "buildfrom":"command center",
-            "required":"engineering bay"
+            "required":"engineering bay",
+            "addon":"true"
         },
         "supply depot":{
             "no":3,
