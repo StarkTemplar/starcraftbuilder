@@ -474,7 +474,7 @@ class Engine():
 
         max_count = 0
         for i in self.queue:
-            if i.state == "end" and i.name == ("assimilator" or "refinery" or "extractor") and i.starttime <= time:
+            if i.state == "end" and i.name in ["assimilator","refinery","extractor"] and i.starttime <= time:
                 max_count += 3
         return count, max_count
 # return the number of workers doing nothing workers or building
@@ -541,7 +541,7 @@ class Engine():
         if count < max_count:
             return time
         for i in self.queue:
-            if i.state == "end" and i.starttime > time and i.name == ("assimilator" or "refinery" or "extractor"):
+            if i.state == "end" and i.starttime > time and i.name in ["assimilator","refinery","extractor"]:
                 return i.starttime
         return error.NoRefineryExists
 

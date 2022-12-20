@@ -714,6 +714,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         MD = sc2buildUI(sys.argv[1])
     else:
-        MD = sc2buildUI('protoss')
+        MD = sc2buildUI('terran')
     sys.exit(app.exec_())
 
