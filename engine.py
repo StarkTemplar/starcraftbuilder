@@ -202,7 +202,7 @@ class Engine():
 
         # in case of build a worker, it needs to be added to worker mineral schedule
         count, max_count = self.countMineralWorkers(time)
-        if self.queue[-1].name == ("probe" or "drone" or "scv"):
+        if self.queue[-1].name in ["probe","drone","scv"]:
             if count<max_count:
                 self.worker.addSchedule(self.queue[-1].starttime, 1, 0, 0, 0)
         
@@ -221,8 +221,8 @@ class Engine():
                 self.worker.addSchedule(real_time + 2, 1, 0, -1, 0) #add worker to minerals 2 seconds later
             elif self.race == 'terran':
                 if buildingMorphed == "none":
-                    self.worker.addSchedule(self.queue[-1].starttime, -1, 0, 1, 0)#remove worker from minerals to start building
-                    self.worker.addSchedule(self.queue[-1].starttime + build_time + 2, 1, 0, -1, 0) #add worker to minerals when building is done building + 2 seconds
+                    self.worker.addSchedule(real_time, -1, 0, 1, 0)#remove worker from minerals to start building
+                    self.worker.addSchedule(real_time + build_time + 2, 1, 0, -1, 0) #add worker to minerals when building is done building + 2 seconds
             else: #zerg
                 if buildingMorphed == "none":
                     self.worker.addSchedule(self.queue[-1].starttime, -1, 0, 1, 0)#might need updated to also remove worker unit
@@ -460,7 +460,7 @@ class Engine():
 
         max_count = 0
         for i in self.queue:
-            if i.state == "end" and (i.name == ("nexus" or "command center" or "hatchery")) and i.starttime <= time:
+            if i.state == "end" and (i.name in ["nexus","command center","hatchery"]) and i.starttime <= time:
                 max_count += 16
         return count, max_count
 
@@ -516,9 +516,10 @@ class Engine():
             # you can't allocate more workers on gas layers
             return error.GasLayersAreFull
 
-        if self.countDoingNothingWorkers(time) > 0:
-            self.worker.addSchedule(time, 0, 1, -1, 0)
-        elif mineral_count > 0:
+        #this if statement was converting building workers to gas. building and donothing workers are one in the same
+        #if self.countDoingNothingWorkers(time) > 0:
+        #    self.worker.addSchedule(time, 0, 1, -1, 0)
+        if mineral_count > 0:
             self.worker.addSchedule(time, -1, 1, 0, 0)
         else:
             # no workers available
