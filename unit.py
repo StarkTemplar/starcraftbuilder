@@ -646,6 +646,7 @@ unit_dict = {
             "gas":25,
             "buildtime":18,
             "buildfrom":"barracks",
+            "addon":"true",
             "required":"barracks",
             "supplyoffer":0
         },
@@ -656,6 +657,7 @@ unit_dict = {
             "gas":25,
             "buildtime":18,
             "buildfrom":"factory",
+            "addon":"true",
             "required":"factory",
             "supplyoffer":0
         },
@@ -666,6 +668,7 @@ unit_dict = {
             "gas":25,
             "buildtime":18,
             "buildfrom":"starport",
+            "addon":"true",
             "required":"starport",
             "supplyoffer":0
         },
@@ -694,6 +697,7 @@ unit_dict = {
             "gas":50,
             "buildtime":36,
             "buildfrom":"barracks",
+            "addon":"true",
             "required":"barracks",
             "supplyoffer":0
         },
@@ -704,6 +708,7 @@ unit_dict = {
             "gas":50,
             "buildtime":36,
             "buildfrom":"factory",
+            "addon":"true",
             "required":"factory",
             "supplyoffer":0
         },
@@ -714,6 +719,7 @@ unit_dict = {
             "gas":50,
             "buildtime":36,
             "buildfrom":"starport",
+            "addon":"true",
             "required":"starport",
             "supplyoffer":0
         },

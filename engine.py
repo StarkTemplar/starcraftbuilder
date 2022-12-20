@@ -206,12 +206,18 @@ class Engine():
             if count<max_count:
                 self.worker.addSchedule(self.queue[-1].starttime, 1, 0, 0, 0)
         
-        #check if building morphs from another building ie terran addons or zerg buildings
+        #check if building morphs from another building ie zerg buildings or protoss warp gate
         #buildings that morph are warp gates or lair etc.
         try: 
             buildingMorphed = unit_dict[typ][self.race][unit]["buildfrom"]
         except KeyError:
             buildingMorphed = "none"
+
+        #check if building is an addon. Addons don't remove the previous building
+        try: 
+            buildingAddon = unit_dict[typ][self.race][unit]["addon"]
+        except KeyError:
+            buildingAddon = "none"
 
         # in case of building a building, subtract a mineral worker for x time depending on race
         # protoss 2 seconds, terran whole build time, zerg loses a worker
@@ -227,7 +233,8 @@ class Engine():
                 if buildingMorphed == "none":
                     self.worker.addSchedule(self.queue[-1].starttime, -1, 0, 1, 0)#might need updated to also remove worker unit
             if buildingMorphed != "none": # if this building morphs from a different building.
-                building.endtime = real_time #Set the endtime of morphing building
+                if buildingAddon == "none": # if the building is not an addon
+                    building.endtime = real_time #Set the endtime of morphing building so it is removed
 
 
         # for the case of protoss nexus, you get one more possible chrono schedule
