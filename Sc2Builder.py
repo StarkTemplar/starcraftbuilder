@@ -253,7 +253,11 @@ class sc2buildUI(QMainWindow):
         
         #unit table
         unit_ = list(unit_dict['unit'][self.race].items())
-        for y in range(6):
+        if len(unit_) < 25:
+            unitLength = 5
+        else:
+            unitLength = 6
+        for y in range(unitLength):
             for x in range(5):
                 self.unitButton.append(QPushButton(self))
                 self.unitButton[-1].resize(40,40)
@@ -269,12 +273,16 @@ class sc2buildUI(QMainWindow):
                 self.unitButton[unit_[i][1]['no']].setToolTip(str(unit_[i][0] + "\n m: " + str(unit_[i][1]['mineral']) + "\n g: " + str(unit_[i][1]['gas']) + "\n s: " + str(unit_[i][1]['supply']) + "\n t: " + str(unit_[i][1]['buildtime'])))
         
         #building table
+        if unitLength <= 5:
+            buildingOffset = 335
+        else:
+            buildingOffset = 375
         building_ = list(unit_dict['building'][self.race].items())
         for y in range(5):
             for x in range(5):
                 self.buildingButton.append(QPushButton(self))
                 self.buildingButton[-1].resize(40,40)
-                self.buildingButton[-1].move(980+40*x,375+40*y) #default +30
+                self.buildingButton[-1].move(980+40*x,buildingOffset+40*y) #default +30
                 self.buildingButton[-1].clicked.connect(lambda state,i=5*y+x: self.structureBuild(i))
         for i in range(len(building_)):
             filename = IconPath(building_[i][0])
@@ -286,12 +294,20 @@ class sc2buildUI(QMainWindow):
                 self.buildingButton[building_[i][1]['no']].setToolTip(str(building_[i][0] + "\n m: " + str(building_[i][1]['mineral']) + "\n g: " + str(building_[i][1]['gas']) + "\n t: " + str(building_[i][1]['buildtime'])))
 
         #upgrade table
+        if unitLength <= 5:
+            upgradeOffset = 545
+        else:
+            upgradeOffset = 585
         upgrade_ = list(unit_dict['upgrade'][self.race].items())
-        for y in range(6):
+        if len(upgrade_) >= 31:
+            upgradeRange = 7
+        else:
+            upgradeRange = 6
+        for y in range(upgradeRange):
             for x in range(5):
                 self.upgradeButton.append(QPushButton(self))
                 self.upgradeButton[-1].resize(40,40)
-                self.upgradeButton[-1].move(980+40*x,585+40*y) #default +30
+                self.upgradeButton[-1].move(980+40*x,upgradeOffset+40*y) #default +30
                 self.upgradeButton[-1].clicked.connect(lambda state,i=5*y+x: self.upgradeBuild(i))
         for i in range(len(upgrade_)):
             filename = IconPath(upgrade_[i][0])

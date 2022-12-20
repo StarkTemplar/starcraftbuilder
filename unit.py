@@ -184,7 +184,7 @@ unit_dict = {
         },
         
         "warp zealot":{
-            "no":20,
+            "no":19,
             "race":"protoss",
             "mineral":100,
             "gas":0,
@@ -193,7 +193,7 @@ unit_dict = {
             "buildfrom":"warp gate"
         },
         "warp stalker":{
-            "no":21,
+            "no":20,
             "race":"protoss",
             "mineral":125,
             "gas":50,
@@ -203,7 +203,7 @@ unit_dict = {
             "required":"cybernetics core"
         },
         "warp sentry":{
-            "no":22,
+            "no":21,
             "race":"protoss",
             "mineral":50,
             "gas":100,
@@ -213,7 +213,7 @@ unit_dict = {
             "required":"cybernetics core"
         },
         "warp adept":{
-            "no":23,
+            "no":22,
             "race":"protoss",
             "mineral":100,
             "gas":25,
@@ -223,7 +223,7 @@ unit_dict = {
             "required":"cybernetics core"
         },
         "warp high templar":{
-            "no":24,
+            "no":23,
             "race":"protoss",
             "mineral":50,
             "gas":150,
@@ -233,7 +233,7 @@ unit_dict = {
             "required":"templar archives"
         },
         "warp dark templar":{
-            "no":25,
+            "no":24,
             "race":"protoss",
             "mineral":125,
             "gas":125,
@@ -1246,6 +1246,30 @@ unit_dict = {
             "gas":100,
             "buildfrom":"engineering bay",
             "buildtime":43
+        },
+        "weapon refit research":{
+            "no":30,
+            "race":"terran",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"fusion core",
+            "buildtime":100
+        },
+        "advanced ballistics research":{
+            "no":31,
+            "race":"terran",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"fusion core",
+            "buildtime":79
+        },
+        "rapid reignition research":{
+            "no":32,
+            "race":"terran",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"fusion core",
+            "buildtime":57
         }
     },
     "zerg":{
