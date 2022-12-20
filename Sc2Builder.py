@@ -266,7 +266,7 @@ class sc2buildUI(QMainWindow):
             if type(filename) == type(""):
                 self.unitButton[unit_[i][1]['no']].setIcon(QIcon(filename))
                 self.unitButton[unit_[i][1]['no']].setIconSize(QSize(38,38)) #default 28
-                self.unitButton[unit_[i][1]['no']].setToolTip(unit_[i][0])
+                self.unitButton[unit_[i][1]['no']].setToolTip(str(unit_[i][0] + "\n m: " + str(unit_[i][1]['mineral']) + "\n g: " + str(unit_[i][1]['gas']) + "\n s: " + str(unit_[i][1]['supply']) + "\n t: " + str(unit_[i][1]['buildtime'])))
         
         #building table
         building_ = list(unit_dict['building'][self.race].items())
@@ -283,7 +283,7 @@ class sc2buildUI(QMainWindow):
             if type(filename) == type(""):
                 self.buildingButton[building_[i][1]['no']].setIcon(QIcon(filename))
                 self.buildingButton[building_[i][1]['no']].setIconSize(QSize(38,38)) #default 28
-                self.buildingButton[building_[i][1]['no']].setToolTip(building_[i][0])
+                self.buildingButton[building_[i][1]['no']].setToolTip(str(building_[i][0] + "\n m: " + str(building_[i][1]['mineral']) + "\n g: " + str(building_[i][1]['gas']) + "\n t: " + str(building_[i][1]['buildtime'])))
 
         #upgrade table
         upgrade_ = list(unit_dict['upgrade'][self.race].items())
@@ -300,7 +300,7 @@ class sc2buildUI(QMainWindow):
             if type(filename) == type(""):
                 self.upgradeButton[upgrade_[i][1]['no']].setIcon(QIcon(filename))
                 self.upgradeButton[upgrade_[i][1]['no']].setIconSize(QSize(38,38)) #default 28
-                self.upgradeButton[upgrade_[i][1]['no']].setToolTip(upgrade_[i][0])
+                self.upgradeButton[upgrade_[i][1]['no']].setToolTip(str(upgrade_[i][0] + "\n m: " + str(upgrade_[i][1]['mineral']) + "\n g: " + str(upgrade_[i][1]['gas']) + "\n t: " + str(upgrade_[i][1]['buildtime'])))
 
         self.show()
 
