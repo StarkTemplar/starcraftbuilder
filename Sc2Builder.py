@@ -498,9 +498,10 @@ class sc2buildUI(QMainWindow):
             msg = QMessageBox.warning(self,'error!','Unit does not exist', QMessageBox.Ok, QMessageBox.Ok)
             return error.WrongUnitName
 
+        # do not build larva when button is pressed
         if item == "larva":
             err = error.CannotBuildLarva
-        else:
+        else: #all other items get sent to additem function
             self.engine.AddItem(item, "unit")
             err = self.engine.Rearrange()
 
@@ -717,7 +718,7 @@ class sc2buildUI(QMainWindow):
         ind = 0
         for i in unit_dict['unit'][self.race]:
             count = self.engine.unitCount(i, self.cursor)
-            if count <= 0:
+            if count <= 0 and i != "larva": #always show larva count
                 continue
             text = i + " : " + str(count)
             self.unitList.setItem(ind, 0, QTableWidgetItem(text))
