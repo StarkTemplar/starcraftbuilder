@@ -191,6 +191,8 @@ class Engine():
         # building variable refers to the prerequisite unit(s). This is typically a building but ocassionally a unit IE archon
         if type(building) == Unit and building.type == 'unit':#units that morph from a single unit IE baneling
             building.endtime = real_time
+            if building.name == "larva":
+                larvaResult = self.addLarva(real_time)
         elif type(building) == list: #units that morph from multiple units IE archon
             for i in building:
                 i.endtime = real_time
@@ -253,6 +255,15 @@ class Engine():
         self.queue = self.SortQueue(self.queue)
         return real_time
 
+    def addLarva(self, time):
+        hatch = self.buildingCount("hatchery", time)
+        lair = self.buildingCount("lair", time)
+        hive = self.buildingCount("hive", time)
+        if self.unitCount("larva", time) < (3 * (hatch + lair + hive)): #only add larva if there are less than 3 larva per hatch/lair/hive
+            self.queue.append(Unit('unit',"larva",time + 11,state='end'))
+            return 1
+        else:
+            return 0
 # returns the earliest time in the whole game and corresponding object(s)
 # (e.g. ConditionCheck("stalker","unit") will return the completion time of the first cybernetics core)
 # if the required condition can never be satisfied, return error.ConditionNotSatisfied

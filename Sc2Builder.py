@@ -584,7 +584,7 @@ class sc2buildUI(QMainWindow):
         self.board.clearSpans()
         self.inputTable.clearSpans()
 
-        storedRow = int
+        storedRow = 0
 
         # draw inputTable items
         self.inputTable.setColumnCount(len(self.engine.input))
@@ -599,13 +599,12 @@ class sc2buildUI(QMainWindow):
                 self.inputTable.item(0,i).setIcon(icon)
 
             #store the row number so we can autoscroll horizontal bar
-            storedRow = i
+            storedRow += 1
 
         #autoscroll inputTable only if setting is true
         if self.autoscrollOption:
-            self.inputTable.scrollToItem(self.inputTable.item(0,storedRow), QAbstractItemView.EnsureVisible)
-                
-
+            self.inputTable.scrollToItem(self.inputTable.item(0,storedRow), QAbstractItemView.EnsureVisible)      
+            
         # draw items from engine.queue
         # this includes units, buildings, upgrades
         self.inputNo = []
