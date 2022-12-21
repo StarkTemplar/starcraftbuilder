@@ -403,15 +403,73 @@ unit_dict = {
         },
     },
     "zerg":{
-        "probe":{
+        "drone":{
             "no":0,
-            "race":"protoss",
+            "race":"zerg",
             "mineral":50,
             "gas":0,
             "supply":1,
             "buildtime":12,
-            "buildfrom":"nexus"
+            "buildfrom":"larva"
         },
+        "zergling":{
+            "no":1,
+            "race":"zerg",
+            "mineral":50,
+            "gas":0,
+            "supply":1,
+            "buildtime":17,
+            "buildfrom":"larva"
+        },
+        "queen":{
+            "no":2,
+            "race":"zerg",
+            "mineral":150,
+            "gas":0,
+            "supply":2,
+            "buildtime":36,
+            "buildfrom":"hatchery",
+            "required":"spawning pool"
+        },
+        "baneling":{
+            "no":3,
+            "race":"zerg",
+            "mineral":25,
+            "gas":25,
+            "supply":1,
+            "buildtime":14,
+            "buildfrom":"zergling",
+            "required":"baneling nest"
+        },
+        "larva":{
+            "no":4,
+            "race":"zerg",
+            "mineral":0,
+            "gas":0,
+            "supply":0,
+            "buildtime":11,
+            "buildfrom":"hatchery"
+        },
+        "roach":{
+            "no":5,
+            "race":"zerg",
+            "mineral":75,
+            "gas":25,
+            "supply":2,
+            "buildtime":19,
+            "buildfrom":"larva",
+            "required":"roach warren"
+        },
+        "ravager":{
+            "no":6,
+            "race":"zerg",
+            "mineral":25,
+            "gas":75,
+            "supply":3,
+            "buildtime":9,
+            "buildfrom":"roach",
+            "required":"roach warren"
+        }
     }
 },
 "building":{
@@ -755,14 +813,62 @@ unit_dict = {
         },
     },
     "zerg":{
-        "nexus":{
+        "hatchery":{
             "no":0,
-            "race":"protoss",
-            "mineral":400,
+            "race":"zerg",
+            "mineral":300,
             "gas":0,
             "buildtime":71,
-            "supplyoffer":15
+			"buildfrom":"drone",
+            "supplyoffer":14
         },
+        "overlord":{
+            "no":1,
+            "race":"zerg",
+            "mineral":100,
+            "gas":0,
+            "buildtime":18,
+			"buildfrom":"larva",
+            "supplyoffer":8
+        },
+        "extractor":{
+            "no":2,
+            "race":"zerg",
+            "mineral":25,
+            "gas":0,
+            "buildtime":21,
+			"buildfrom":"drone",
+            "supplyoffer":0
+        },
+        "spawning pool":{
+            "no":3,
+            "race":"zerg",
+            "mineral":200,
+            "gas":0,
+            "buildtime":46,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"hatchery"
+        },
+        "evolution chamber":{
+            "no":4,
+            "race":"zerg",
+            "mineral":75,
+            "gas":0,
+            "buildtime":25,
+            "supplyoffer":0,
+			"buildfrom":"drone"
+            },
+        "lair":{
+            "no":5,
+            "race":"zerg",
+            "mineral":150,
+            "gas":100,
+            "buildtime":57,
+            "supplyoffer":15,
+			"buildfrom":"hatchery",
+            "required":["hatchery","spawning pool"]
+        }
     }
 },
 "upgrade":{

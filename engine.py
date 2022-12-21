@@ -34,6 +34,11 @@ class Engine():
         for i in range(12):
             self.queue.append(Unit('unit',w,0,state='end'))
 
+        #generate larva for zerg
+        if race == "zerg":
+            for i in range(3):
+                self.queue.append(Unit('unit',"larva",0,state='end'))
+
         self.worker.addSchedule(0,8,0,0,0) #8 workers get to a mineral patch immediatly
         self.worker.addSchedule(3.825,4,0,0,0) #4 workers have to wait 3.825 seconds to start mining
 
@@ -232,8 +237,9 @@ class Engine():
                     self.worker.addSchedule(real_time, -1, 0, 1, 0)#remove worker from minerals to start building
                     self.worker.addSchedule(real_time + build_time + 2, 1, 0, -1, 0) #add worker to minerals when building is done building + 2 seconds
             else: #zerg
-                if buildingMorphed == "none":
-                    self.worker.addSchedule(self.queue[-1].starttime, -1, 0, 1, 0)#might need updated to also remove worker unit
+                if buildingMorphed == "drone":
+                    self.worker.addSchedule(real_time, -1, 0, 1, 0)#remove worker from minerals to start building
+                    self.worker.addSchedule(real_time + build_time, 0, 0, -1, 0) #remove worker from building stats. do not add back to minerals since drone is gone
             if buildingMorphed != "none": # if this building morphs from a different building.
                 if buildingAddon == "none": # if the building is not an addon
                     building.endtime = real_time #Set the endtime of morphing building so it is removed

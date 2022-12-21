@@ -498,8 +498,12 @@ class sc2buildUI(QMainWindow):
             msg = QMessageBox.warning(self,'error!','Unit does not exist', QMessageBox.Ok, QMessageBox.Ok)
             return error.WrongUnitName
 
-        self.engine.AddItem(item, "unit")
-        err = self.engine.Rearrange()
+        if item == "larva":
+            err = error.CannotBuildLarva
+        else:
+            self.engine.AddItem(item, "unit")
+            err = self.engine.Rearrange()
+
         if err == error.AlreadyBoosted:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
@@ -511,6 +515,10 @@ class sc2buildUI(QMainWindow):
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1) #delete most recent unit
             self.engine.DeleteItem(-1) #delete most recent chronoboost
+            return err
+        elif err == error.CannotBuildLarva:
+            errmsg = error.ErrorMsg(err)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             return err
         elif err < 0:
             errmsg = error.ErrorMsg(err)
@@ -730,6 +738,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         MD = sc2buildUI(sys.argv[1])
     else:
-        MD = sc2buildUI('terran')
+        MD = sc2buildUI('zerg')
     sys.exit(app.exec_())
 
