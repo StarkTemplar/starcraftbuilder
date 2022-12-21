@@ -51,16 +51,18 @@ class Worker():
         self.time = []
         self.mineral = []
         self.gas = []
-        self.donothing = [] #doing nothing or building
+        self.donothing = [] #doing nothing
         self.scouting = []
+        self.building = [] #building or morphing
     # if m is negative, mineral schedule preserves
     # same as others
-    def addSchedule(self, t, m, g, n, s):
+    def addSchedule(self, t, m, g, n, s, b):
         self.time.append(t)
         self.mineral.append(m)
         self.gas.append(g)
         self.donothing.append(n)
         self.scouting.append(s)
+        self.building.append(b)
 
 class ChronoSchedule():
     def __init__(self):

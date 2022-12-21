@@ -39,8 +39,8 @@ class Engine():
             for i in range(3):
                 self.queue.append(Unit('unit',"larva",0,state='end'))
 
-        self.worker.addSchedule(0,8,0,0,0) #8 workers get to a mineral patch immediatly
-        self.worker.addSchedule(3.825,4,0,0,0) #4 workers have to wait 3.825 seconds to start mining
+        self.worker.addSchedule(0,8,0,0,0,0) #8 workers get to a mineral patch immediatly
+        self.worker.addSchedule(3.825,4,0,0,0,0) #4 workers have to wait 3.825 seconds to start mining
 
 # quick sort according to 'starttime'
     def SortQueue(self, x):
@@ -117,7 +117,7 @@ class Engine():
             for j in range(len(self.chrono[i].time)):
                 print("chrono[%d].time[%d]:"%(i,j),self.chrono[i].time[j], \
                     "    target:",self.chrono[i].target[j].name)
-        return c
+        return (self.queue[-1].starttime)
 
 # add a new item in the queue
 # and return real actual time it starts to build itself
@@ -187,12 +187,20 @@ class Engine():
         self.queue[-2].setInputLink(inputno)
         self.queue[-2].boosted = boosted
 
+        # in case of build a worker, it needs to be added to worker mineral schedule
+        count, max_count = self.countMineralWorkers(self.queue[-1].starttime)
+        if self.queue[-1].name in ["probe","drone","scv"]:
+            if count<max_count:
+                self.worker.addSchedule(self.queue[-1].starttime, 1, 0, 0, 0, 0)
+            else:
+                self.worker.addSchedule(self.queue[-1].starttime, 0, 0, 1, 0, 0)
+
         # handles morphing/merging units, set the endtime to make them disappear
         # building variable refers to the prerequisite unit(s). This is typically a building but ocassionally a unit IE archon
         if type(building) == Unit and building.type == 'unit':#units that morph from a single unit IE baneling
             building.endtime = real_time
-            if building.name == "larva":
-                larvaResult = self.addLarva(real_time)
+            if building.name == "larva": #if larva is used call addLarva function
+                larvaResult = self.addLarva(real_time, 1, 11) #add 1 larva with 11 second delay
         elif type(building) == list: #units that morph from multiple units IE archon
             for i in building:
                 i.endtime = real_time
@@ -215,11 +223,7 @@ class Engine():
         #output to engine window
         print("inputno:",inputno," build starttime:",real_time," buildtime:",build_time," build endtime:", real_time + build_time, " unit:",unit," boosted:",boosted)
 
-        # in case of build a worker, it needs to be added to worker mineral schedule
-        count, max_count = self.countMineralWorkers(time)
-        if self.queue[-1].name in ["probe","drone","scv"]:
-            if count<max_count:
-                self.worker.addSchedule(self.queue[-1].starttime, 1, 0, 0, 0)
+        
         
         #check if building morphs from another building ie zerg buildings or protoss warp gate
         #buildings that morph are warp gates or lair etc.
@@ -232,16 +236,18 @@ class Engine():
         # protoss 2 seconds, terran whole build time, zerg loses a worker
         if typ == 'building':
             if self.race == 'protoss':
-                self.worker.addSchedule(real_time, -1, 0, 1, 0) #remove worker from minerals to start building
-                self.worker.addSchedule(real_time + 2, 1, 0, -1, 0) #add worker to minerals 2 seconds later
+                self.worker.addSchedule(real_time, -1, 0, 0, 0, 1) #remove worker from minerals to start building
+                self.worker.addSchedule(real_time + 2, 1, 0, 0, 0, -1) #add worker to minerals 2 seconds later
             elif self.race == 'terran':
                 if buildingMorphed == "none":
-                    self.worker.addSchedule(real_time, -1, 0, 1, 0)#remove worker from minerals to start building
-                    self.worker.addSchedule(real_time + build_time + 2, 1, 0, -1, 0) #add worker to minerals when building is done building + 2 seconds
+                    self.worker.addSchedule(real_time, -1, 0, 0, 0, 1)#remove worker from minerals to start building
+                    self.worker.addSchedule(real_time + build_time + 2, 1, 0, 0, 0, -1) #add worker to minerals when building is done building + 2 seconds
             else: #zerg
                 if buildingMorphed == "drone":
-                    self.worker.addSchedule(real_time, -1, 0, 1, 0)#remove worker from minerals to start building
-                    self.worker.addSchedule(real_time + build_time, 0, 0, -1, 0) #remove worker from building stats. do not add back to minerals since drone is gone
+                    self.worker.addSchedule(real_time, -1, 0, 0, 0, 1)#remove worker from minerals to start building
+                    self.worker.addSchedule(real_time + build_time, 0, 0, 0, 0, -1) #remove worker from building stats. do not add back to minerals since drone is gone
+                if self.queue[-1].name == "hatchery":
+                    larvaResult2 = self.addLarva(real_time + build_time, 3, 0) #add 3 larva when hatchery is done building with 0 delay
             if buildingMorphed != "none": # if this building morphs from a different building.
                 if buildingAddon == "none": # if the building is not an addon
                     building.endtime = real_time #Set the endtime of morphing building so it is removed
@@ -255,15 +261,16 @@ class Engine():
         self.queue = self.SortQueue(self.queue)
         return real_time
 
-    def addLarva(self, time):
+    def addLarva(self, time, amount, delay):
         hatch = self.buildingCount("hatchery", time)
         lair = self.buildingCount("lair", time)
         hive = self.buildingCount("hive", time)
-        if self.unitCount("larva", time) < (3 * (hatch + lair + hive)): #only add larva if there are less than 3 larva per hatch/lair/hive
-            self.queue.append(Unit('unit',"larva",time + 11,state='end'))
-            return 1
-        else:
-            return 0
+        count = 0
+        for i in range(amount):
+            if self.unitCount("larva", time) < (3 * (hatch + lair + hive)): #only add larva if there are less than 3 larva per hatch/lair/hive
+                self.queue.append(Unit('unit',"larva",time + delay,state='end'))
+                count += 1
+        return count
 # returns the earliest time in the whole game and corresponding object(s)
 # (e.g. ConditionCheck("stalker","unit") will return the completion time of the first cybernetics core)
 # if the required condition can never be satisfied, return error.ConditionNotSatisfied
@@ -503,7 +510,7 @@ class Engine():
             if i.state == "end" and i.name in ["assimilator","refinery","extractor"] and i.starttime <= time:
                 max_count += 3
         return count, max_count
-# return the number of workers doing nothing workers or building
+# return the number of workers doing nothing workers
     def countDoingNothingWorkers(self, time):
         count = 0
         for i in range(len(self.worker.time)):
@@ -520,33 +527,47 @@ class Engine():
             count += self.worker.scouting[i]
         return count
 
+# return the number of workers building
+    def countBuildingWorkers(self, time):
+        count = 0
+        for i in range(len(self.worker.time)):
+            if self.worker.time[i] > time:
+                continue
+            count += self.worker.building[i]
+        return count
+
     def gatherMineral(self, time):
         mineral_count, mineral_max_count = self.countMineralWorkers(time)
         gas_count, gas_max_count = self.countGasWorkers(time)
+        idle_count = self.countDoingNothingWorkers(time)
 
         if mineral_count >= mineral_max_count:
             # you can't allocate more workers on mineral fields
             return error.MineralFieldsAreFull
 
-        if gas_count <= 0:
+        if idle_count > 0:
+            self.worker.addSchedule(time, 1, 0, -1, 0, 0)
+        elif gas_count <= 0:
             return error.NoOneGathersGas
+        else:
+            self.worker.addSchedule(time, 1, -1, 0, 0, 0)
 
-        self.worker.addSchedule(time, 1, -1, 0, 0)
         return 0
 
     def gatherGas(self, time):
         mineral_count, mineral_max_count = self.countMineralWorkers(time)
         gas_count, gas_max_count = self.countGasWorkers(time)
+        idle_count = self.countDoingNothingWorkers(time)
 
         if gas_count >= gas_max_count:
             # you can't allocate more workers on gas layers
             return error.GasLayersAreFull
 
-        #this if statement was converting building workers to gas. building and donothing workers are one in the same
-        #if self.countDoingNothingWorkers(time) > 0:
-        #    self.worker.addSchedule(time, 0, 1, -1, 0)
-        if mineral_count > 0:
-            self.worker.addSchedule(time, -1, 1, 0, 0)
+
+        if idle_count > 0:
+            self.worker.addSchedule(time, 0, 1, -1, 0, 0)
+        elif mineral_count > 0:
+            self.worker.addSchedule(time, -1, 1, 0, 0, 0)
         else:
             # no workers available
             return error.NotEnoughWorkers
@@ -556,7 +577,7 @@ class Engine():
         mineral_count, mineral_max_count = self.countMineralWorkers(time)
         
         if mineral_count > 0:
-            self.worker.addSchedule(time, -1, 0, 0, 1)
+            self.worker.addSchedule(time, -1, 0, 0, 1, 0)
         else:
             # no workers available
             return error.NotEnoughWorkers

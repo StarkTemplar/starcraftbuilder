@@ -132,8 +132,12 @@ class sc2buildUI(QMainWindow):
         menu_help.addAction(menu_help_about)
         
         self.label = QLabel(self)
-        self.label.move(980,30)
+        self.label.move(980,20)
         self.label.resize(450,60)
+
+        self.label2 = QLabel(self)
+        self.label2.move(1190,15)
+        self.label2.resize(200,200)
 
         self.inputTable = QTableWidget(self)
         self.inputTable.resize(960, 80)
@@ -707,12 +711,20 @@ class sc2buildUI(QMainWindow):
 
         mineral, gas = self.engine.AccResources(self.cursor)
         curSup, maxSup = self.engine.CurrentSupply(self.cursor)
+        wMineral = self.engine.countMineralWorkers(self.cursor)
+        wGas = self.engine.countGasWorkers(self.cursor)
         wScouting = self.engine.countScoutingWorkers(self.cursor)
-        wBuilding = self.engine.countDoingNothingWorkers(self.cursor)
+        wScouting = self.engine.countScoutingWorkers(self.cursor)
+        wBuilding = self.engine.countBuildingWorkers(self.cursor)
+        wIdle = self.engine.countDoingNothingWorkers(self.cursor)
         text = "time : "+SecondToStr(self.cursor)+", mineral : "+str(mineral)+", gas : "+str(gas)+", supply : "+str(curSup)+"/"+str(maxSup)
-        text += "\nworkers scouting : " + str(wScouting)
-        text += ", workers building : " + str(wBuilding)
         self.label.setText(text)
+        text = "workers minerals : " + str(wMineral)
+        text += "\nworkers gas : " + str(wGas)
+        text += "\nworkers scouting : " + str(wScouting)
+        text += "\nworkers building : " + str(wBuilding)
+        text += "\nworkers idle : " + str(wIdle)
+        self.label2.setText(text)
 
         ind = 0
         for i in unit_dict['unit'][self.race]:
