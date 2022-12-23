@@ -262,9 +262,9 @@ class Engine():
         return real_time
 
     def addLarva(self, time, amount, delay):
-        hatch = self.buildingCount("hatchery", time)
-        lair = self.buildingCount("lair", time)
-        hive = self.buildingCount("hive", time)
+        hatch = self.buildingCount("hatchery", time, False)
+        lair = self.buildingCount("lair", time, True)
+        hive = self.buildingCount("hive", time, True)
         count = 0
         for i in range(amount):
             if self.unitCount("larva", time) < (3 * (hatch + lair + hive)): #only add larva if there are less than 3 larva per hatch/lair/hive
@@ -603,13 +603,15 @@ class Engine():
                 count += 1
         return count
 
-    def buildingCount(self, building, time):
+    def buildingCount(self, building, time, morphing):
         count = 0
         for i in self.queue:
             if i.type != 'building' or i.state != 'end':
                 continue
-            if i.name == building and i.starttime <= time < i.endtime:
-                count +=1
+            if i.name == building:
+               if i.starttime <= time < i.endtime:
+                    count +=1
+            
         return count
 
 # add chronoboost schedule

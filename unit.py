@@ -469,6 +469,96 @@ unit_dict = {
             "buildtime":9,
             "buildfrom":"roach",
             "required":"roach warren"
+        },
+        "hydralisk":{
+            "no":7,
+            "race":"zerg",
+            "mineral":100,
+            "gas":50,
+            "supply":2,
+            "buildtime":24,
+            "buildfrom":"larva",
+            "required":"hydralisk den"
+        },
+		"lurker":{
+            "no":8,
+            "race":"zerg",
+            "mineral":50,
+            "gas":100,
+            "supply":3,
+            "buildtime":18,
+            "buildfrom":"hydralisk",
+            "required":"lurker den"
+        },
+		"infestor":{
+            "no":9,
+            "race":"zerg",
+            "mineral":100,
+            "gas":150,
+            "supply":2,
+            "buildtime":36,
+            "buildfrom":"larva",
+            "required":"infestation pit"
+        },
+		"swarm host":{
+            "no":10,
+            "race":"zerg",
+            "mineral":100,
+            "gas":75,
+            "supply":3,
+            "buildtime":29,
+            "buildfrom":"larva",
+            "required":"infestation pit"
+        },
+		"ultralisk":{
+            "no":11,
+            "race":"zerg",
+            "mineral":300,
+            "gas":200,
+            "supply":6,
+            "buildtime":39,
+            "buildfrom":"larva",
+            "required":"ultralisk cavern"
+        },
+		"mutalisk":{
+            "no":12,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "supply":2,
+            "buildtime":24,
+            "buildfrom":"larva",
+            "required":"spire"
+        },
+		"corruptor":{
+            "no":13,
+            "race":"zerg",
+            "mineral":150,
+            "gas":100,
+            "supply":2,
+            "buildtime":29,
+            "buildfrom":"larva",
+            "required":"spire"
+        },
+		"brood lord":{
+            "no":14,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "supply":4,
+            "buildtime":24,
+            "buildfrom":"corruptor",
+            "required":"greater spire"
+        },
+		"viper":{
+            "no":15,
+            "race":"zerg",
+            "mineral":100,
+            "gas":200,
+            "supply":3,
+            "buildtime":29,
+            "buildfrom":"larva",
+            "required":"hive"
         }
     }
 },
@@ -868,6 +958,125 @@ unit_dict = {
             "supplyoffer":15,
 			"buildfrom":"hatchery",
             "required":["hatchery","spawning pool"]
+        },
+        "roach warren":{
+            "no":6,
+            "race":"zerg",
+            "mineral":150,
+            "gas":0,
+            "buildtime":39,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"spawning pool"
+        },
+        "baneling nest":{
+            "no":7,
+            "race":"zerg",
+            "mineral":100,
+            "gas":50,
+            "buildtime":43,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"spawning pool"
+        },
+        "hydralisk den":{
+            "no":8,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildtime":29,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"lair"
+        },
+		"lurker den":{
+            "no":9,
+            "race":"zerg",
+            "mineral":100,
+            "gas":150,
+            "buildtime":57,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"hydralisk den"
+        },
+        "hive":{
+            "no":10,
+            "race":"zerg",
+            "mineral":200,
+            "gas":150,
+            "buildtime":71,
+            "supplyoffer":15,
+			"buildfrom":"lair",
+            "required":"infestation pit"
+        },
+        "infestation pit":{
+            "no":11,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildtime":36,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"lair"
+        },
+		"spire":{
+            "no":12,
+            "race":"zerg",
+            "mineral":200,
+            "gas":200,
+            "buildtime":71,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"lair"
+        },
+		"greater spire":{
+            "no":13,
+            "race":"zerg",
+            "mineral":100,
+            "gas":150,
+            "buildtime":71,
+            "supplyoffer":0,
+			"buildfrom":"spire",
+            "required":"hive"
+        },
+		"ultralisk cavern":{
+            "no":14,
+            "race":"zerg",
+            "mineral":150,
+            "gas":200,
+            "buildtime":46,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"hive"
+        },
+        "nydus network":{
+            "no":15,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildtime":36,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+            "required":"lair"
+        },
+		"spine crawler":{
+            "no":16,
+            "race":"zerg",
+            "mineral":100,
+            "gas":0,
+            "buildtime":36,
+            "supplyoffer":0,
+			"buildfrom":"drone"
+        },
+		"spore crawler":{
+            "no":17,
+            "race":"zerg",
+            "mineral":75,
+            "gas":0,
+            "buildtime":21,
+            "supplyoffer":0,
+			"buildfrom":"drone",
+			"required":"spawning pool"
         }
     }
 },
@@ -1379,14 +1588,250 @@ unit_dict = {
         }
     },
     "zerg":{
-        "warp gate research":{
+        "metabolic boost research":{
             "no":0,
-            "race":"protoss",
-            "mineral":50,
-            "gas":50,
-            "buildfrom":"cybernetics core",
-            "buildtime":100,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"spawning pool",
+            "buildtime":79
         },
+        "glial reconstitution research":{
+            "no":1,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"roach warren",
+            "buildtime":79
+        },
+        "melee attacks level 1":{
+            "no":2,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"evolution chamber",
+            "buildtime":114
+        },
+        "melee attacks level 2":{
+            "no":3,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"evolution chamber",
+            "buildtime":136,
+            "required":["lair","melee attacks level 1"]
+        },
+        "melee attacks level 3":{
+            "no":4,
+            "race":"zerg",
+            "mineral":200,
+            "gas":200,
+            "buildfrom":"evolution chamber",
+            "buildtime":157,
+            "required":["hive","melee attacks level 2"]
+        },
+        "adrenal glands research":{
+            "no":5,
+            "race":"zerg",
+            "mineral":200,
+            "gas":200,
+            "buildfrom":"spawning pool",
+            "buildtime":93,
+			"required":"hive"
+        },
+        "tunneling claws research":{
+            "no":6,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"roach warren",
+            "buildtime":79,
+			"required":"lair"
+        },
+        "missile attacks level 1":{
+            "no":7,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"evolution chamber",
+            "buildtime":114
+        },
+        "missile attacks level 2":{
+            "no":8,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"evolution chamber",
+            "buildtime":136,
+            "required":["lair","missile attacks level 1"]
+        },
+        "missile attacks level 3":{
+            "no":9,
+            "race":"zerg",
+            "mineral":200,
+            "gas":200,
+            "buildfrom":"evolution chamber",
+            "buildtime":157,
+            "required":["hive","missile attacks level 2"]
+        },
+        "centrifugal hooks research":{
+            "no":10,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"baneling nest",
+            "buildtime":79
+        },
+        "burrow research":{
+            "no":11,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"hatchery",
+            "buildtime":71
+        },
+        "ground carapace level 1":{
+            "no":12,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"evolution chamber",
+            "buildtime":114
+        },
+        "ground carapace level 2":{
+            "no":13,
+            "race":"zerg",
+            "mineral":225,
+            "gas":225,
+            "buildfrom":"evolution chamber",
+            "buildtime":136,
+            "required":["lair","ground carapace level 1"]
+        },
+        "ground carapace level 3":{
+            "no":14,
+            "race":"zerg",
+            "mineral":300,
+            "gas":300,
+            "buildfrom":"evolution chamber",
+            "buildtime":157,
+            "required":["hive","ground carapace level 2"]
+        },
+        "grooved spines research":{
+            "no":15,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"hydralisk den",
+            "buildtime":71
+        },
+        "muscular augments research":{
+            "no":16,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"hydralisk den",
+            "buildtime":71
+        },
+        "flyer attacks level 1":{
+            "no":17,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"spire",
+            "buildtime":114
+        },
+        "flyer attacks level 2":{
+            "no":18,
+            "race":"zerg",
+            "mineral":175,
+            "gas":175,
+            "buildfrom":"spire",
+            "buildtime":136,
+            "required":"flyer attacks level 1"
+        },
+        "flyer attacks level 3":{
+            "no":19,
+            "race":"zerg",
+            "mineral":250,
+            "gas":250,
+            "buildfrom":"spire",
+            "buildtime":157,
+            "required":"flyer attacks level 2"
+        },
+        "adaptive talons research":{
+            "no":20,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"lurker den",
+            "buildtime":57
+        },
+		"seismic spines research":{
+            "no":21,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"lurker den",
+            "buildtime":57
+        },
+		"flyer carapace level 1":{
+            "no":22,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"spire",
+            "buildtime":114
+        },
+        "flyer carapace level 2":{
+            "no":23,
+            "race":"zerg",
+            "mineral":225,
+            "gas":225,
+            "buildfrom":"spire",
+            "buildtime":136,
+            "required":["lair","flyer carapace level 1"]
+        },
+        "flyer carapace level 3":{
+            "no":24,
+            "race":"zerg",
+            "mineral":300,
+            "gas":300,
+            "buildfrom":"spire",
+            "buildtime":157,
+            "required":["hive","flyer carapace level 2"]
+        },
+		"chitnous plating research":{
+            "no":25,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"ultralisk cavern",
+            "buildtime":79
+        },
+		"anabolic synthesis research":{
+            "no":26,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"ultralisk cavern",
+            "buildtime":43
+        },
+		"pneumatized carapace research":{
+            "no":27,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"hatchery",
+            "buildtime":43
+        },
+		"mutate ventral sacs research":{
+            "no":28,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"lair",
+            "buildtime":43
+        }
     }
 }
 }
