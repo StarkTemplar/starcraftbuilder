@@ -611,6 +611,10 @@ class Engine():
             if i.name == building:
                if i.starttime <= time < i.endtime:
                     count +=1
+               elif morphing == True and i.starttime > time and i.name in ["lair","hive"]:
+                   # if morphing is true and the starttime is in the future
+                   # and the name is lair or hive. count this so larva will still be produced
+                   count += 1
             
         return count
 

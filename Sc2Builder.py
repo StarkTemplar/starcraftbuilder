@@ -737,7 +737,7 @@ class sc2buildUI(QMainWindow):
 
         ind = 0
         for i in unit_dict['building'][self.race]:
-            count = self.engine.buildingCount(i, self.cursor)
+            count = self.engine.buildingCount(i, self.cursor, False)
             if count <= 0:
                 continue
             text = i + " : " + str(count)
