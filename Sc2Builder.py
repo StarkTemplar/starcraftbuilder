@@ -727,6 +727,7 @@ class sc2buildUI(QMainWindow):
         self.label2.setText(text)
 
         ind = 0
+        self.unitList.clearContents() #clear list before entering items
         for i in unit_dict['unit'][self.race]:
             count = self.engine.unitCount(i, self.cursor)
             if count <= 0 and i != "larva": #always show larva count
@@ -736,6 +737,7 @@ class sc2buildUI(QMainWindow):
             ind += 1
 
         ind = 0
+        self.buildingList.clearContents() #clear list before entering items
         for i in unit_dict['building'][self.race]:
             count = self.engine.buildingCount(i, self.cursor, False)
             if count <= 0:

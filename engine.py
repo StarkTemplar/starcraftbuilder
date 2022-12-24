@@ -200,6 +200,8 @@ class Engine():
         if type(building) == Unit and building.type == 'unit':#units that morph from a single unit IE baneling
             building.endtime = real_time
             if building.name == "larva": #if larva is used call addLarva function
+                if self.queue[-1].name == "zergling": # spawn extra zergling because 2 zergling are created from 1 larva
+                    self.queue.append(Unit('unit',"zergling",real_time + build_time,state='end'))
                 larvaResult = self.addLarva(real_time, 1, 11) #add 1 larva with 11 second delay
         elif type(building) == list: #units that morph from multiple units IE archon
             for i in building:

@@ -412,8 +412,8 @@ unit_dict = {
             "buildtime":12,
             "buildfrom":"larva"
         },
-        "zergling":{
-            "no":1,
+        "zergling":{ # 50minerals and 1 supply morphs 2 zerglings from a single larva
+            "no":1,  # unit counting function just double counts each zergling
             "race":"zerg",
             "mineral":50,
             "gas":0,
