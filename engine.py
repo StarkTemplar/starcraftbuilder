@@ -183,6 +183,8 @@ class Engine():
         self.queue.append(Unit(typ,unit, real_time, real_time+build_time))
         self.queue.append(Unit(typ,unit, real_time+build_time, state='end'))
         self.queue[-1].setLinked(self.queue[-2])
+        if self.queue[-1].name == "queen":
+            self.queue[-1].startingEnergy = 25
         self.queue[-2].setBuildingLink(building)
         self.queue[-2].setInputLink(inputno)
         self.queue[-2].boosted = boosted
@@ -203,7 +205,7 @@ class Engine():
                 if self.queue[-1].name == "zergling": # spawn extra zergling because 2 zergling are created from 1 larva
                     self.queue.append(Unit('unit',"zergling",real_time + build_time,state='end'))
                 larvaResult = self.addLarva(real_time, 1, 11) #add 1 larva with 11 second delay
-        elif type(building) == list: #units that morph from multiple units IE archon
+        elif type(building) == list and self.queue[-1].name == "archon": #units that morph from multiple units IE archon
             for i in building:
                 i.endtime = real_time
 
@@ -349,19 +351,18 @@ class Engine():
             # no available time due to supply problem
             if required_supply > max_supply:
                 return error.SupplyBlocked, 0
-
-
-        try: 
+        
+        #retrieve build from property
+        #all units should have at least one of these
+        #only morphed buildings will have this
+        try:
             target = unit_dict[typ][self.race][unit]['buildfrom']
         except KeyError:
             target = "none"
-        if target == "none":
-            return time,0 #if buildfrom is empty, this is a building that is built from scratch IE pylon, gateway. A building that morphs like a warp gate or lair will have a build from property
 
-        available = 0
-        building = 0
-        # suppose the game ends before 10000 seconds (2hrs 46mins 40secs)
-        ans = maxtime
+        if typ == "building" and target == "none":
+            return time,0 #if buildfrom is empty, this is a building that is
+                            #built from scratch IE pylon, gateway. A building that morphs like a warp gate or lair will have a build from property
 
         # for the case of archon that consumes two units
         if type(target) == list:
@@ -369,7 +370,7 @@ class Engine():
             for t in target:
                 for i in self.queue:
                     #if len(building) >= 2: #len(target):
-                     #   break
+                        #   break
                     if i in building:
                         continue # if i is already in building list skip this iteration
                     if i.state == "end" and i.name == t and i.endtime == maxtime:
@@ -379,12 +380,45 @@ class Engine():
                 if ans<i.starttime:
                     ans = i.starttime
             
-            #if target list is longer than buildings in queue
-            if len(building) < 2: #len(target):
-                return error.NoBarrackExists, 0
-            return ans,building
+            if len(building) < 2 and unit == 'archon': #archon needs 2 units to build from
+                return error.NoBarrackExists, 0 
+            elif unit == 'archon':
+                return ans,building
+            else:
+                #checks if target building is in build queue
+                available = 0
+                ans = maxtime
+                for i in building:
+                    #if i.state == "end" and i.name == target and i.endtime>time:
+                    if i.starttime <= time:
+                        if len(i.queue) == 0 or i.queue[-1].endtime<=time:
+                            return time, i
+                        else:
+                            if ans > i.queue[-1].endtime:
+                                ans = i.queue[-1].endtime
+                                building = i
+                                available += 1
+                    else:
+                        if len(i.queue) == 0:
+                            if ans > i.starttime:
+                                ans = i.starttime
+                                building = i
+                                available += 1
+                        else:
+                            if ans > i.queue[-1].endtime:
+                                ans = i.queue[-1].endtime
+                                building = i
+                                available = 1
+                return ans,building #other units can be built from any single item in the list.
 
-        for i in self.queue: #checks if target building is in build queue
+
+
+        available = 0
+        building = 0
+        ans = maxtime # suppose the game ends before 10000 seconds (2hrs 46mins 40secs)
+
+        #checks if target building is in build queue
+        for i in self.queue:
             if i.state == "end" and i.name == target and i.endtime>time:
                 if i.starttime <= time:
                     if len(i.queue) == 0 or i.queue[-1].endtime<=time:
@@ -605,6 +639,7 @@ class Engine():
                 count += 1
         return count
 
+# returns the number of given buildings at the given time
     def buildingCount(self, building, time, morphing):
         count = 0
         for i in self.queue:
@@ -619,6 +654,30 @@ class Engine():
                    count += 1
             
         return count
+
+# returns the earliest time to use targetEnergy
+    def earliestEnergyUse(self, unit, targetEnergy):
+        usedEnergy = len(unit.usedEnergy) * targetEnergy
+
+        # if never used energy return the units endtime
+        if usedEnergy == 0:
+            return unit.endtime
+        
+        generatedEnergy = (unit.usedEnergy[-1] - unit.endtime) * 0.5625
+        if generatedEnergy + unit.startingEnergy - usedEnergy >= 200:
+            generatedEnergy = 200 #maximum energy
+        else:
+            generatedEnergy = generatedEnergy + unit.startingEnergy
+
+        latestEnergyValue = generatedEnergy - usedEnergy
+        # if most recent energy used time still has enough energy, return last used energy time
+        if latestEnergyValue >= targetEnergy:
+            return unit.usedEnergy[-1]
+        else: # find time where there is enough energy
+            energyDeficit = targetEnergy - latestEnergyValue
+            futureTime = (energyDeficit / 0.5625) + unit.usedEnergy[-1]
+            return futureTime
+
 
 # add chronoboost schedule
 # if all nexuses are in their cooldown, return error.ChronoCooldown

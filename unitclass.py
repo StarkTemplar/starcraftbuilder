@@ -16,6 +16,8 @@ class Unit():
         self.inputlink = 0
         self.boosted = 0
         self.queue = []
+        self.startingEnergy = 0 #energy for queens
+        self.usedEnergy = [] #time of used energies
 
     def setLinked(self, link):
         if type(link) != Unit or link.type != 'unit':

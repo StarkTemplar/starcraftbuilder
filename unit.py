@@ -413,7 +413,7 @@ unit_dict = {
             "buildfrom":"larva"
         },
         "zergling":{ # 50minerals and 1 supply morphs 2 zerglings from a single larva
-            "no":1,  # unit counting function just double counts each zergling
+            "no":1,
             "race":"zerg",
             "mineral":50,
             "gas":0,
@@ -428,7 +428,7 @@ unit_dict = {
             "gas":0,
             "supply":2,
             "buildtime":36,
-            "buildfrom":"hatchery",
+            "buildfrom":["hatchery","lair","hive"],
             "required":"spawning pool"
         },
         "baneling":{
