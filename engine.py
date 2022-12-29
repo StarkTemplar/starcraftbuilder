@@ -109,6 +109,10 @@ class Engine():
                 test = t.gatherScout(c)
                 if test<0:
                     return test
+            elif self.input[i][0] == "spawnlarva":
+                test = t.spawnLarva(c)
+                if test<0:
+                    return test
         self.queue = t.queue
         self.worker = t.worker
         self.chrono = t.chrono
@@ -204,7 +208,7 @@ class Engine():
             if building.name == "larva": #if larva is used call addLarva function
                 if self.queue[-1].name == "zergling": # spawn extra zergling because 2 zergling are created from 1 larva
                     self.queue.append(Unit('unit',"zergling",real_time + build_time,state='end'))
-                larvaResult = self.addLarva(real_time, 1, 11) #add 1 larva with 11 second delay
+                larvaResult = self.addLarva(real_time, 1, 11, False) #add 1 larva with 11 second delay
         elif type(building) == list and self.queue[-1].name == "archon": #units that morph from multiple units IE archon
             for i in building:
                 i.endtime = real_time
@@ -251,7 +255,7 @@ class Engine():
                     self.worker.addSchedule(real_time, -1, 0, 0, 0, 1)#remove worker from minerals to start building
                     self.worker.addSchedule(real_time + build_time, 0, 0, 0, 0, -1) #remove worker from building stats. do not add back to minerals since drone is gone
                 if self.queue[-1].name == "hatchery":
-                    larvaResult2 = self.addLarva(real_time + build_time, 3, 0) #add 3 larva when hatchery is done building with 0 delay
+                    larvaResult2 = self.addLarva(real_time + build_time, 3, 0, False) #add 3 larva when hatchery is done building with 0 delay
             if buildingMorphed != "none": # if this building morphs from a different building.
                 if buildingAddon == "none": # if the building is not an addon
                     building.endtime = real_time #Set the endtime of morphing building so it is removed
@@ -265,15 +269,19 @@ class Engine():
         self.queue = self.SortQueue(self.queue)
         return real_time
 
-    def addLarva(self, time, amount, delay):
+    def addLarva(self, time, amount, delay, injection):
         hatch = self.buildingCount("hatchery", time, False)
         lair = self.buildingCount("lair", time, True)
         hive = self.buildingCount("hive", time, True)
         count = 0
         for i in range(amount):
-            if self.unitCount("larva", time) < (3 * (hatch + lair + hive)): #only add larva if there are less than 3 larva per hatch/lair/hive
+            if (self.unitCount("larva", time) < (3 * (hatch + lair + hive))) and injection == False: #only add larva if there are less than 3 larva per hatch/lair/hive
                 self.queue.append(Unit('unit',"larva",time + delay,state='end'))
                 count += 1
+            elif injection == True: #if this is from queen larva injection
+                if (self.unitCount("larva", time) < (19 * (hatch + lair + hive))): #each injected base can only support 19 larva
+                    self.queue.append(Unit('unit',"larva",time + delay,state='end'))
+                    count += 1
         return count
 # returns the earliest time in the whole game and corresponding object(s)
 # (e.g. ConditionCheck("stalker","unit") will return the completion time of the first cybernetics core)
@@ -352,7 +360,7 @@ class Engine():
             if required_supply > max_supply:
                 return error.SupplyBlocked, 0
         
-        #retrieve build from property
+        #retrieve buildFrom property
         #all units should have at least one of these
         #only morphed buildings will have this
         try:
@@ -375,16 +383,19 @@ class Engine():
                         continue # if i is already in building list skip this iteration
                     if i.state == "end" and i.name == t and i.endtime == maxtime:
                         building.append(i)
+            
+            #find the highest startTime in building array
             ans = 0
             for i in building:
                 if ans<i.starttime:
                     ans = i.starttime
             
             if len(building) < 2 and unit == 'archon': #archon needs 2 units to build from
-                return error.NoBarrackExists, 0 
+                return error.NoBarrackExists, 0 #not enough templars to build archon
             elif unit == 'archon':
-                return ans,building
+                return ans,building #enough templars to build archon
             else:
+                #for all other units that only need 1 item from their list of many IE queen can be built from hatchery, lair, or hive
                 #checks if target building is in build queue
                 available = 0
                 ans = maxtime
@@ -409,8 +420,7 @@ class Engine():
                                 ans = i.queue[-1].endtime
                                 building = i
                                 available = 1
-                return ans,building #other units can be built from any single item in the list.
-
+                return ans,building #other units can be built from any single item in the list
 
 
         available = 0
@@ -440,7 +450,7 @@ class Engine():
                             building = i
                             available = 1
 
-        # no available time because no corresponding barrack exists
+        # no available time because no corresponding building in buildFrom property exists
         if available <= 0 or building.endtime <= ans:
             return error.NoBarrackExists, 0
         return ans, building
@@ -661,9 +671,9 @@ class Engine():
 
         # if never used energy return the units endtime
         if usedEnergy == 0:
-            return unit.endtime
+            return unit.starttime
         
-        generatedEnergy = (unit.usedEnergy[-1] - unit.endtime) * 0.5625
+        generatedEnergy = (unit.usedEnergy[-1] - unit.starttime) * 0.5625
         if generatedEnergy + unit.startingEnergy - usedEnergy >= 200:
             generatedEnergy = 200 #maximum energy
         else:
@@ -677,6 +687,62 @@ class Engine():
             energyDeficit = targetEnergy - latestEnergyValue
             futureTime = (energyDeficit / 0.5625) + unit.usedEnergy[-1]
             return futureTime
+
+#returns earliest time spawn larva function can be used
+    def spawnLarva(self, time):
+        
+        #find all queens
+        earliestQueenEnergy = maxtime
+        tempEnergy = maxtime
+        earliestQueen = Unit
+        for i in self.queue:
+            if i.name == 'queen' and i.state == 'end':
+                tempEnergy = self.earliestEnergyUse(i,25)
+                if tempEnergy < earliestQueenEnergy:
+                    earliestQueen = i
+                    earliestQueenEnergy = tempEnergy
+        
+        if earliestQueenEnergy == 10000:
+            return error.NoQueens
+        else:
+            #find all hatcheries, lairs, and hives
+            earliestBase = Unit
+            zergBases = []
+            tempBase = maxtime
+            ans = maxtime
+            for i in self.queue:
+                if i.name in ["hatchery","lair","hive"] and i.state == 'end':
+                    if i.starttime <= earliestQueenEnergy < i.endtime:
+                        zergBases.append(i)
+
+            for i in zergBases:
+                if i.starttime <= earliestQueenEnergy:
+                    if len(i.secondaryQueue) == 0 or i.secondaryQueue[-1].endtime<=earliestQueenEnergy:
+                        ans = earliestQueenEnergy
+                    else:
+                        #if ans > i.queue[-1].endtime:
+                        ans = i.secondaryQueue[-1].endtime
+                else:
+                    if len(i.secondaryQueue) == 0:
+                        #if ans > i.starttime:
+                        ans = i.starttime
+                    else:
+                        #if ans > i.queue[-1].endtime:
+                         ans = i.secondaryQueue[-1].endtime
+                if ans < tempBase:
+                    tempBase = ans
+                    earliestBase = i
+
+            #put in injection in secondary queue of hatchery
+            earliestBase.secondaryQueue.append(Unit('skill','injection', tempBase, tempBase+40))
+
+            #create 3 larva 40 seconds from now
+            self.addLarva(tempBase, 3, 40, True) #add 3 larva with 40 second delay
+
+            #queen objects seemed to be linked based on energyuse
+            #earliestQueen
+            earliestQueen.useEnergy(tempBase)
+        return tempBase
 
 
 # add chronoboost schedule

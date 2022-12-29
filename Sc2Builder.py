@@ -254,6 +254,11 @@ class sc2buildUI(QMainWindow):
             if filename != error.NoPathExists:
                 self.skillButton[0].setIcon(QIcon(filename))
             self.skillButton[0].setIconSize(QSize(38,38)) #default 28
+        if self.race == "zerg":
+            filename = IconPath('spawnlarva')
+            if filename != error.NoPathExists:
+                self.skillButton[0].setIcon(QIcon(filename))
+            self.skillButton[0].setIconSize(QSize(38,38)) #default 28
         
         #unit table
         unit_ = list(unit_dict['unit'][self.race].items())
@@ -489,6 +494,17 @@ class sc2buildUI(QMainWindow):
     def useSkill(self,no):
         if self.race == "protoss" and no == 0:
             self.engine.AddItem("chronoboost","skill")
+        elif self.race == "zerg" and no == 0:
+            self.engine.AddItem("spawnlarva","skill")
+            err = self.engine.Rearrange()
+            if err < 0:
+                errmsg = error.ErrorMsg(err)
+                msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                self.engine.DeleteItem(-1)
+                return err
+            self.drawBoard()
+            self.newCursor(err)
+            return 0
 
     def unitBuild(self, no):
         k = unit_dict['unit'][self.race].keys()
@@ -660,7 +676,21 @@ class sc2buildUI(QMainWindow):
             self.board.setSpan(level, self.engine.worker.time[i], 1, 16)
             self.board.setItem(level, self.engine.worker.time[i], QTableWidgetItem(text))
             self.board.item(level,self.engine.worker.time[i]).setToolTip(text + "\nstart: " + SecondToStr(self.engine.worker.time[i]))
-    
+        
+        # draw larva injections for zerg
+        if self.race == "zerg":
+            for i in self.engine.queue:
+                if i.name in ["hatchery","lair","hive"] and i.state == 'end':
+                    if len(i.secondaryQueue) > 0:
+                        for j in i.secondaryQueue:
+                            level = 0
+                            while self.board.columnSpan(level, j.starttime) != 1:
+                                level += 1
+
+                            self.board.setSpan(level, j.starttime, 1, j.endtime - j.starttime)
+                            self.board.setItem(level, j.starttime, QTableWidgetItem(j.name))
+                            self.board.item(level,j.starttime).setToolTip(j.name + "\nstart: " + SecondToStr(j.starttime) + "\nend: " + SecondToStr(j.endtime))
+
         #autoscroll board only if setting is true
         if self.autoscrollOption:
             self.board.scrollToItem(self.board.item(0,storedRow), QAbstractItemView.EnsureVisible)

@@ -16,6 +16,7 @@ class Unit():
         self.inputlink = 0
         self.boosted = 0
         self.queue = []
+        self.secondaryQueue = []
         self.startingEnergy = 0 #energy for queens
         self.usedEnergy = [] #time of used energies
 
@@ -45,6 +46,9 @@ class Unit():
         if type(u) != Unit:
             return error.NotUnitType
         self.queue.append(u)
+
+    def useEnergy(self, time):
+        self.usedEnergy.append(time)
 
 # mineral[i] = no of workers gathering minerals from time[i] to time[i+1] (or forever)
 # gas[i] = nothing different with mineral[i] but only gases
