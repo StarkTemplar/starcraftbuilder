@@ -16,7 +16,8 @@ class Unit():
         self.inputlink = 0
         self.boosted = 0
         self.queue = []
-        self.secondaryQueue = []
+        self.secondaryQueue = [] #used for zerg base injections
+        self.tertiaryQueue = [] #used for zerg base larva generation
         self.startingEnergy = 0 #energy for queens
         self.usedEnergy = [] #time of used energies
 

@@ -268,21 +268,72 @@ class Engine():
 
         self.queue = self.SortQueue(self.queue)
         return real_time
-
+#addLarva function. Takes into account morphing lair or hive
+#use tertiaryQueue array to schedule larva generation as quickly as possible
     def addLarva(self, time, amount, delay, injection):
-        hatch = self.buildingCount("hatchery", time, False)
-        lair = self.buildingCount("lair", time, True)
-        hive = self.buildingCount("hive", time, True)
-        count = 0
-        for i in range(amount):
-            if (self.unitCount("larva", time) < (3 * (hatch + lair + hive))) and injection == False: #only add larva if there are less than 3 larva per hatch/lair/hive
-                self.queue.append(Unit('unit',"larva",time + delay,state='end'))
-                count += 1
-            elif injection == True: #if this is from queen larva injection
-                if (self.unitCount("larva", time) < (19 * (hatch + lair + hive))): #each injected base can only support 19 larva
+        zergBases = []
+        larvaGenerated = 0
+        tempBase = maxtime
+        ans = maxtime
+        earliestBase = Unit
+
+        # find all zerg bases
+        for i in self.queue:
+           if i.name in ["hatchery","lair","hive"]:
+               if i.starttime <= time < i.endtime:
+                    zergBases.append(i)
+               elif i.starttime > time and i.name in ["lair","hive"]:
+                   # if starttime is in the future
+                   # and name is lair or hive. count this so larva will still be produced
+                   zergBases.append(i)
+        
+        totalBasesCount = len(zergBases)
+        larvaCount = self.unitCount("larva", time)
+        larvaQueue = 0
+
+        if injection == False and delay > 0 and (larvaCount < (3 * totalBasesCount)): #only try to generate larva if there are less than 3 larva per hatch/lair/hive
+            #find zergBase that can generate larva the soonest
+            for i in zergBases:
+                for j in i.tertiaryQueue: #find all larva already in base's queue
+                    if j.starttime >= time or j.endtime >= time:
+                        larvaQueue += 1
+                if larvaQueue + larvaCount <= 3: # only add larva if queued larva and larva count is less than 3
+                    if i.starttime <= time:
+                        if len(i.tertiaryQueue) == 0 or i.tertiaryQueue[-1].endtime<=time:
+                            ans = time
+                        else:
+                            #if ans > i.queue[-1].endtime:
+                            ans = i.tertiaryQueue[-1].endtime
+                    else:
+                        if len(i.tertiaryQueue) == 0:
+                            #if ans > i.starttime:
+                            ans = i.starttime
+                        else:
+                            #if ans > i.queue[-1].endtime:
+                                ans = i.tertiaryQueue[-1].endtime
+                    if ans < tempBase:
+                        tempBase = ans
+                        earliestBase = i
+            
+            if ans < maxtime:
+                #add larva in tertiary queue of base
+                earliestBase.tertiaryQueue.append(Unit('unit','larva', tempBase, tempBase + delay))
+
+                #add larva to overall queue
+                self.queue.append(Unit('unit',"larva",tempBase + delay,state='end'))
+                larvaGenerated += 1
+        elif delay == 0 and amount == 3: #creating 3 larva when hatchery is done building
+            for i in range(amount):
+                self.queue.append(Unit('unit',"larva",time,state='end'))
+                larvaGenerated += 1
+        elif injection == True: #if this is from queen larva injection
+            for i in range(amount):
+                if (larvaCount < (19 * totalBasesCount)): #each injected base can only support 19 larva
                     self.queue.append(Unit('unit',"larva",time + delay,state='end'))
-                    count += 1
-        return count
+                    larvaGenerated += 1
+
+        return larvaGenerated
+
 # returns the earliest time in the whole game and corresponding object(s)
 # (e.g. ConditionCheck("stalker","unit") will return the completion time of the first cybernetics core)
 # if the required condition can never be satisfied, return error.ConditionNotSatisfied
