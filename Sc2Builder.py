@@ -604,7 +604,7 @@ class sc2buildUI(QMainWindow):
         self.board.clearSpans()
         self.inputTable.clearSpans()
 
-        storedRow = 0
+        storedColumn = 0
 
         # draw inputTable items
         self.inputTable.setColumnCount(len(self.engine.input))
@@ -619,11 +619,11 @@ class sc2buildUI(QMainWindow):
                 self.inputTable.item(0,i).setIcon(icon)
 
             #store the row number so we can autoscroll horizontal bar
-            storedRow += 1
+            storedColumn += 1
 
         #autoscroll inputTable only if setting is true
         if self.autoscrollOption:
-            self.inputTable.scrollToItem(self.inputTable.item(0,storedRow), QAbstractItemView.EnsureVisible)      
+            self.inputTable.scrollToItem(self.inputTable.item(0,storedColumn), QAbstractItemView.EnsureVisible)      
             
         # draw items from engine.queue
         # this includes units, buildings, upgrades
@@ -632,14 +632,18 @@ class sc2buildUI(QMainWindow):
             if item.state != "start":
                 continue
             level = 0
-            while self.board.columnSpan(level, item.starttime) != 1:
+            storedLevel = self.board.columnSpan(level, item.starttime)
+            while self.board.columnSpan(level, item.starttime) != 1 or self.board.columnSpan(level, item.endtime) != 1:
+                storedLevel = self.board.columnSpan(level, item.starttime)
                 level += 1
 
             self.board.setSpan(level, item.starttime, 1, item.endtime - item.starttime)
             self.board.setItem(level, item.starttime, QTableWidgetItem(item.name))
             self.board.item(level,item.starttime).setToolTip(item.name + "\nstart: " + SecondToStr(item.starttime) + "\nend: " + SecondToStr(item.endtime))
-            #store the row number so we can autoscroll horizontal bar
-            storedRow = item.starttime
+            
+            #store the column number so we can autoscroll horizontal bar
+            if item.starttime > storedColumn:
+                storedColumn = item.starttime
 
             # for the case of chronoboosted units or upgrades would have blue background color
             # and if it was boosted partially, it gets little lighter blue background
@@ -670,12 +674,17 @@ class sc2buildUI(QMainWindow):
 
 
             level = 0
-            while self.board.columnSpan(level, self.engine.worker.time[i]) != 1 \
-                or self.board.columnSpan(level, self.engine.worker.time[i]+11) != 1:
+            storedLevel = self.board.columnSpan(level, self.engine.worker.time[i])
+            while self.board.columnSpan(level, self.engine.worker.time[i]) != 1 or self.board.columnSpan(level, self.engine.worker.time[i]+11) != 1:
+                storedLevel = self.board.columnSpan(level, self.engine.worker.time[i])
                 level += 1
             self.board.setSpan(level, self.engine.worker.time[i], 1, 16)
             self.board.setItem(level, self.engine.worker.time[i], QTableWidgetItem(text))
             self.board.item(level,self.engine.worker.time[i]).setToolTip(text + "\nstart: " + SecondToStr(self.engine.worker.time[i]))
+
+            #store the column number so we can autoscroll horizontal bar
+            if self.engine.worker.time[i] > storedColumn:
+                storedColumn = self.engine.worker.time[i]
         
         # draw larva injections for zerg
         if self.race == "zerg":
@@ -684,16 +693,23 @@ class sc2buildUI(QMainWindow):
                     if len(i.secondaryQueue) > 0:
                         for j in i.secondaryQueue:
                             level = 0
-                            while self.board.columnSpan(level, j.starttime) != 1:
+                            storedLevel = self.board.columnSpan(level, j.starttime)
+                            while self.board.columnSpan(level, j.starttime) != 1 or self.board.columnSpan(level, j.endtime) != 1 or self.board.columnSpan(level, j.starttime + 10) != 1 or self.board.columnSpan(level, j.starttime + 20) != 1 or self.board.columnSpan(level, j.starttime + 30) != 1:
+                                storedLevel = self.board.columnSpan(level, j.starttime)
                                 level += 1
 
                             self.board.setSpan(level, j.starttime, 1, j.endtime - j.starttime)
                             self.board.setItem(level, j.starttime, QTableWidgetItem(j.name))
                             self.board.item(level,j.starttime).setToolTip(j.name + "\nstart: " + SecondToStr(j.starttime) + "\nend: " + SecondToStr(j.endtime))
+                            self.board.item(level,j.starttime).setBackground(QColor(191,219,255)) #lighter blue
+
+                            #store the column number so we can autoscroll horizontal bar
+                            if j.starttime > storedColumn:
+                                storedColumn = j.starttime
 
         #autoscroll board only if setting is true
         if self.autoscrollOption:
-            self.board.scrollToItem(self.board.item(0,storedRow), QAbstractItemView.EnsureVisible)
+            self.board.scrollToItem(self.board.item(0,storedColumn), QAbstractItemView.EnsureVisible)
             
 
 
