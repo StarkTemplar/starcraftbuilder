@@ -30,6 +30,7 @@ IncompatibleVersion = -29
 CannotBuildLarva = -30
 NotEnoughEnergy = -31
 NoQueens = -32
+NoOrbitalCommands = -33
 
 def ErrorMsg(e):
     if e == NegativeTime:
@@ -96,5 +97,7 @@ def ErrorMsg(e):
         return "Not enough energy."
     elif e == NoQueens:
         return "Spawn Larva skill requires at least 1 queen to be built."
+    elif e == NoOrbitalCommands:
+        return "Calldown MULE requires Orbital Command"
     else:
         return "Unknown error code"

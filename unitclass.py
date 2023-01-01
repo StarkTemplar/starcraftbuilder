@@ -61,15 +61,26 @@ class Worker():
         self.donothing = [] #doing nothing
         self.scouting = []
         self.building = [] #building or morphing
+        self.mule = [] # terran mules
     # if m is negative, mineral schedule preserves
     # same as others
-    def addSchedule(self, t, m, g, n, s, b):
-        self.time.append(t)
-        self.mineral.append(m)
-        self.gas.append(g)
-        self.donothing.append(n)
-        self.scouting.append(s)
-        self.building.append(b)
+    def addSchedule(self, time, mineral, gas, donothing, scouting, building):
+        self.time.append(time)
+        self.mineral.append(mineral)
+        self.gas.append(gas)
+        self.donothing.append(donothing)
+        self.scouting.append(scouting)
+        self.building.append(building)
+        self.mule.append(0)
+
+    def muleSchedule(self, time, mule):
+        self.time.append(time)
+        self.mineral.append(0)
+        self.gas.append(0)
+        self.donothing.append(0)
+        self.scouting.append(0)
+        self.building.append(0)
+        self.mule.append(mule)
 
 class ChronoSchedule():
     def __init__(self):

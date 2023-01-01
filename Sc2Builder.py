@@ -132,11 +132,11 @@ class sc2buildUI(QMainWindow):
         menu_help.addAction(menu_help_about)
         
         self.label = QLabel(self)
-        self.label.move(980,20)
+        self.label.move(980,15)
         self.label.resize(450,60)
 
         self.label2 = QLabel(self)
-        self.label2.move(1190,15)
+        self.label2.move(1190,20)
         self.label2.resize(200,200)
 
         self.inputTable = QTableWidget(self)
@@ -190,8 +190,8 @@ class sc2buildUI(QMainWindow):
         self.cursorLine.move(0,0)
 
         self.unitList = QTableWidget(self)
-        self.unitList.resize(200, 323)
-        self.unitList.move(1190, 165)
+        self.unitList.resize(200, 313)
+        self.unitList.move(1190, 180)
         self.unitList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.unitList.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.unitList.horizontalHeader().hide()
@@ -201,8 +201,8 @@ class sc2buildUI(QMainWindow):
         self.unitList.setColumnWidth(0, 195)
 
         self.buildingList = QTableWidget(self)
-        self.buildingList.resize(200, 323)
-        self.buildingList.move(1190, 503)
+        self.buildingList.resize(200, 313)
+        self.buildingList.move(1190, 513)
         self.buildingList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.buildingList.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.buildingList.horizontalHeader().hide()
@@ -221,8 +221,8 @@ class sc2buildUI(QMainWindow):
         self.gasButton.resize(40,40) #default 30
         self.scoutButton.resize(40,40) #default 30
         self.mineralButton.move(980, 85)
-        self.gasButton.move(1016,85) #default 1010
-        self.scoutButton.move(1054,85)
+        self.gasButton.move(1020,85) #default 1010
+        self.scoutButton.move(1060,85)
         filename = IconPath('mineral')
         if filename != error.NoPathExists:
             self.mineralButton.setIcon(QIcon(filename))
@@ -247,7 +247,7 @@ class sc2buildUI(QMainWindow):
         for x in range(2):
             self.skillButton.append(QPushButton(self))
             self.skillButton[-1].resize(40,40)
-            self.skillButton[-1].move(1096+40*x, 85) #default +30
+            self.skillButton[-1].move(1100+40*x, 85) #default +30
             self.skillButton[x].clicked.connect(lambda state, xx = x: self.useSkill(xx))
         if self.race == "protoss":
             filename = IconPath('chronoboost')
@@ -256,6 +256,11 @@ class sc2buildUI(QMainWindow):
             self.skillButton[0].setIconSize(QSize(38,38)) #default 28
         if self.race == "zerg":
             filename = IconPath('spawnlarva')
+            if filename != error.NoPathExists:
+                self.skillButton[0].setIcon(QIcon(filename))
+            self.skillButton[0].setIconSize(QSize(38,38)) #default 28
+        if self.race == "terran":
+            filename = IconPath('mule')
             if filename != error.NoPathExists:
                 self.skillButton[0].setIcon(QIcon(filename))
             self.skillButton[0].setIconSize(QSize(38,38)) #default 28
@@ -352,7 +357,7 @@ class sc2buildUI(QMainWindow):
                 f.write(str(VERSION)+"\n")
                 f.write(self.race+"\n")
                 json.dump(self.engine.input,f)
-
+#save as
     def SaveAs(self):
         savefilename = QFileDialog.getSaveFileName(self, 'Save File', '.', '*.s2b')
         if savefilename[0]:
@@ -361,7 +366,7 @@ class sc2buildUI(QMainWindow):
             else:
                 self.savefilename = savefilename[0]
             self.Save()
-
+#menu open
     def Open(self):
         savefilename = QFileDialog.getOpenFileName(self, 'Open File', '.', '*.s2b')
         if savefilename[0]:
@@ -430,11 +435,11 @@ class sc2buildUI(QMainWindow):
                         newMD.newCursor(err)
                         return newMD.cursor
         return 0
-
+#menu new window
     def NewWindow(self, race, filename=''):
         self.close()
         newMD = sc2buildUI(race)
-
+#menu about
     def About(self):
         msg = QMessageBox.information(self,"About...",\
             "sc2builder version: " + str(VERSION) +\
@@ -502,9 +507,17 @@ class sc2buildUI(QMainWindow):
                 msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                 self.engine.DeleteItem(-1)
                 return err
-            self.drawBoard()
-            self.newCursor(err)
-            return 0
+        elif self.race == "terran" and no == 0:
+            self.engine.AddItem("mule","skill")
+            err = self.engine.Rearrange()
+            if err < 0:
+                errmsg = error.ErrorMsg(err)
+                msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                self.engine.DeleteItem(-1)
+                return err
+        self.drawBoard()
+        self.newCursor(err)
+        return 0
 
     def unitBuild(self, no):
         k = unit_dict['unit'][self.race].keys()
@@ -550,7 +563,7 @@ class sc2buildUI(QMainWindow):
             self.drawBoard()
             self.newCursor(err)
             return self.cursor
-
+#structure build
     def structureBuild(self, no):
         k = unit_dict['building'][self.race].keys()
         item = 0
@@ -575,7 +588,7 @@ class sc2buildUI(QMainWindow):
             self.drawBoard()
             self.newCursor(err)
             return self.cursor
-
+#upgrade build
     def upgradeBuild(self, no):
         k = unit_dict['upgrade'][self.race].keys()
         item = 0
@@ -599,7 +612,7 @@ class sc2buildUI(QMainWindow):
             self.drawBoard()
             self.newCursor(err)
             return self.cursor
-
+#draw board function
     def drawBoard(self):
         self.board.clearSpans()
         self.inputTable.clearSpans()
@@ -686,10 +699,10 @@ class sc2buildUI(QMainWindow):
             if self.engine.worker.time[i] > storedColumn:
                 storedColumn = self.engine.worker.time[i]
         
-        # draw larva injections for zerg
-        if self.race == "zerg":
+        # draw larva injections for zerg or MULE drops for terran
+        if self.race in ["zerg","terran"]:
             for i in self.engine.queue:
-                if i.name in ["hatchery","lair","hive"] and i.state == 'end':
+                if i.name in ["hatchery","lair","hive","orbital command"] and i.state == 'end':
                     if len(i.secondaryQueue) > 0:
                         for j in i.secondaryQueue:
                             level = 0
@@ -763,9 +776,12 @@ class sc2buildUI(QMainWindow):
         wScouting = self.engine.countScoutingWorkers(self.cursor)
         wBuilding = self.engine.countBuildingWorkers(self.cursor)
         wIdle = self.engine.countDoingNothingWorkers(self.cursor)
+        wMule = self.engine.countMules(self.cursor)
         text = "time : "+SecondToStr(self.cursor)+", mineral : "+str(mineral)+", gas : "+str(gas)+", supply : "+str(curSup)+"/"+str(maxSup)
         self.label.setText(text)
         text = "workers minerals : " + str(wMineral)
+        if self.engine.race == 'terran':
+            text += "\nMULEs minerals : " + str(wMule)
         text += "\nworkers gas : " + str(wGas)
         text += "\nworkers scouting : " + str(wScouting)
         text += "\nworkers building : " + str(wBuilding)

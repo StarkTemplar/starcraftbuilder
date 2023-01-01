@@ -2,8 +2,12 @@ from unit import *
 from unitclass import *
 import error
 
-lairBuildTime = unit_dict['building']['zerg']['lair']["buildtime"]
-hiveBuildTime = unit_dict['building']['zerg']['hive']["buildtime"]
+startingSupply = 0
+lairBuildTime = ""
+hiveBuildTime = ""
+larvaGenerationTime = 0
+injectionSpawnTime = 0
+muleLifespan = 0
 
 class Engine():
     def __init__(self, race):
@@ -12,38 +16,57 @@ class Engine():
         self.queue = []
         self.chrono = []
         self.worker = Worker()
+
+        #reference global variables
+        global startingSupply
+        global lairBuildTime
+        global hiveBuildTime
+        global larvaGenerationTime
+        global injectionSpawnTime
+        global muleLifespan
+
         # game starts
         if race == 'protoss':
             n = 'nexus'
             w = 'probe'
+            startingSupply = 12
         elif race == 'terran':
             n = 'command center'
             w = 'scv'
+            startingSupply = 12
+            muleLifespan = 64
         elif race == 'zerg':
             n = 'hatchery'
             w = 'drone'
+            startingSupply = 12
+            lairBuildTime = unit_dict['building']['zerg']['lair']["buildtime"]
+            hiveBuildTime = unit_dict['building']['zerg']['hive']["buildtime"]
+            larvaGenerationTime = 11
+            injectionSpawnTime = 40
         else:
             print("Wrong race : %s"%race)
             raise
 
+        #creating starting base
         self.queue.append(Unit('building', n,0,state='end'))
+        #create starting X workers
+        for i in range(startingSupply):
+            self.queue.append(Unit('unit',w,0,state='end'))
         
         #start chronoboost on starting nexus
         if race == 'protoss':
             self.chrono.append(ChronoSchedule())
             #self.chrono[0].addSchedule(0, self.queue[-1]) #only use if you want starting nexus to start with chronoboost
 
-        #create starting 12 workers
-        for i in range(12):
-            self.queue.append(Unit('unit',w,0,state='end'))
-
         #generate larva for zerg
         if race == "zerg":
             for i in range(3):
                 self.queue.append(Unit('unit',"larva",0,state='end'))
-
-        self.worker.addSchedule(0,8,0,0,0,0) #8 workers get to a mineral patch immediatly
-        self.worker.addSchedule(3.825,4,0,0,0,0) #4 workers have to wait 3.825 seconds to start mining
+        
+        # Starcraft2
+        if race in ["protoss","terran","zerg"]:
+            self.worker.addSchedule(0,8,0,0,0,0) #8 workers get to a mineral patch immediatly
+            self.worker.addSchedule(3.825,4,0,0,0,0) #4 workers have to wait 3.825 seconds to start mining
 
 # quick sort according to 'starttime'
     def SortQueue(self, x):
@@ -117,6 +140,10 @@ class Engine():
                     return test
             elif self.input[i][0] == "spawnlarva":
                 test = t.spawnLarva(c)
+                if test<0:
+                    return test
+            elif self.input[i][0] == "mule":
+                test = t.callMule(c)
                 if test<0:
                     return test
         self.queue = t.queue
@@ -195,6 +222,8 @@ class Engine():
         self.queue[-1].setLinked(self.queue[-2])
         if self.queue[-1].name == "queen":
             self.queue[-1].startingEnergy = 25
+        if self.queue[-1].name == "orbital command":
+            self.queue[-1].startingEnergy = 50
         self.queue[-2].setBuildingLink(building)
         self.queue[-2].setInputLink(inputno)
         self.queue[-2].boosted = boosted
@@ -214,7 +243,7 @@ class Engine():
             if building.name == "larva": #if larva is used call addLarva function
                 if self.queue[-1].name == "zergling": # spawn extra zergling because 2 zergling are created from 1 larva
                     self.queue.append(Unit('unit',"zergling",real_time + build_time,state='end'))
-                larvaResult = self.addLarva(real_time, 1, 11, False) #add 1 larva with 11 second delay
+                larvaResult = self.addLarva(real_time, 1, larvaGenerationTime, False) #add 1 larva with 11 second delay
         elif type(building) == list and self.queue[-1].name == "archon": #units that morph from multiple units IE archon
             for i in building:
                 i.endtime = real_time
@@ -313,7 +342,7 @@ class Engine():
             #find zergBase that can generate larva the soonest
             for i in zergBases:
                 for j in i.secondaryQueue: #find all larva injections already in base's queue
-                    if j.endtime <= time + 11:
+                    if j.endtime <= time + larvaGenerationTime:
                         larvaQueue += 3
                 for j in i.tertiaryQueue: #find all larva already in base's queue
                     if j.endtime > time:
@@ -545,7 +574,7 @@ class Engine():
 
 # returns current supply and maximum limit
     def CurrentSupply (self, time):
-        current_supply = 12
+        current_supply = startingSupply
         for i in self.queue:
             if i.type != 'unit' or i.state != "start":
                 continue
@@ -585,7 +614,10 @@ class Engine():
         for i in range(len(self.worker.time)):
             if self.worker.time[i] > time:
                 continue
+            #normal mineral workers
             mineral += 5 * self.worker.mineral[i] * (int) ((time - self.worker.time[i]) / 5.4)
+            #MULE on minerals
+            mineral += int(25 * self.worker.mule[i] * ((time - self.worker.time[i]) / 6.9))
             gas += 4 * self.worker.gas[i] * (int) ((time - self.worker.time[i]) / 3.9)
 
         for i in self.queue:
@@ -615,7 +647,7 @@ class Engine():
 
         max_count = 0
         for i in self.queue:
-            if i.state == "end" and (i.name in ["nexus","command center","hatchery"]) and i.starttime <= time <= i.endtime:
+            if i.state == "end" and (i.name in ["nexus","command center","orbital command","planetary fortress","hatchery"]) and i.starttime <= time <= i.endtime:
                 max_count += 16
             elif i.state == "end" and (i.name in ["lair"]) and (i.starttime - lairBuildTime) <= time <= i.endtime:
                 max_count += 16
@@ -660,6 +692,15 @@ class Engine():
             if self.worker.time[i] > time:
                 continue
             count += self.worker.building[i]
+        return count
+
+# return the number of Mules
+    def countMules(self, time):
+        count = 0
+        for i in range(len(self.worker.time)):
+            if self.worker.time[i] > time:
+                continue
+            count += self.worker.mule[i]
         return count
 
     def gatherMineral(self, time):
@@ -821,16 +862,46 @@ class Engine():
                     earliestBase = i
 
             #put in injection in secondary queue of hatchery
-            earliestBase.secondaryQueue.append(Unit('skill','injection', tempBase, tempBase+40))
+            earliestBase.secondaryQueue.append(Unit('skill','injection', tempBase, tempBase+injectionSpawnTime))
 
             #create 3 larva 40 seconds from now
-            self.addLarva(tempBase, 3, 40, True) #add 3 larva with 40 second delay
+            self.addLarva(tempBase, 3, injectionSpawnTime, True) #add 3 larva with 40 second delay
 
             #queen objects seemed to be linked based on energyuse
             #earliestQueen
             earliestQueen.useEnergy(tempBase)
         return tempBase
 
+#returns earliest time a mule can be called down
+    def callMule(self, time):
+        
+        #find all Orbital Commands
+        earliestOrbitalEnergy = maxtime
+        tempEnergy = maxtime
+        earliestOrbital = Unit
+        for i in self.queue:
+            if i.name == 'orbital command' and i.state == 'end':
+                tempEnergy = self.earliestEnergyUse(i,50)
+                if tempEnergy < earliestOrbitalEnergy:
+                    earliestOrbital = i
+                    earliestOrbitalEnergy = tempEnergy
+        
+        if earliestOrbitalEnergy == 10000:
+            return error.NoOrbitalCommands
+        else:
+            # use energy on orbital command
+            earliestOrbital.useEnergy(earliestOrbitalEnergy)
+
+            #put in injection in secondary queue of hatchery
+            earliestOrbital.secondaryQueue.append(Unit('skill','mule', earliestOrbitalEnergy, earliestOrbitalEnergy+muleLifespan))
+
+
+            #schedule MULE addition in worker object
+            self.worker.muleSchedule(earliestOrbitalEnergy,1)
+            #schedule MULE to disappear 64 seconds later
+            self.worker.muleSchedule(earliestOrbitalEnergy + muleLifespan,-1)
+
+        return earliestOrbitalEnergy
 
 # add chronoboost schedule
 # if all nexuses are in their cooldown, return error.ChronoCooldown
