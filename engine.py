@@ -2,6 +2,9 @@ from unit import *
 from unitclass import *
 import error
 
+lairBuildTime = unit_dict['building']['zerg']['lair']["buildtime"]
+hiveBuildTime = unit_dict['building']['zerg']['hive']["buildtime"]
+
 class Engine():
     def __init__(self, race):
         self.race = race
@@ -61,9 +64,11 @@ class Engine():
 
         return self.SortQueue(left) + equal + self.SortQueue(right)
 
+# add unit, building, upgrade to input queue
     def AddItem(self, name, typ):
         self.input.append( (name,typ) )
 
+# remove item from input queue
     def DeleteItem(self, no):
         if no<-1 or no>=len(self.input):
             return error.WrongIndex
@@ -73,6 +78,7 @@ class Engine():
             self.input.pop(no)
         return self.Rearrange()
 
+#process input queue
     def Rearrange (self):
         t = Engine(self.race)
         c = 0
@@ -227,6 +233,7 @@ class Engine():
                 i.add(self.queue[-2])
         elif (typ == "building" and buildingAddon != "none"):
             building.add(self.queue[-2])
+            
         
         #output to engine window
         print("inputno:",inputno," build starttime:",real_time," buildtime:",build_time," build endtime:", real_time + build_time, " unit:",unit," boosted:",boosted)
@@ -256,6 +263,11 @@ class Engine():
                     self.worker.addSchedule(real_time + build_time, 0, 0, 0, 0, -1) #remove worker from building stats. do not add back to minerals since drone is gone
                 if self.queue[-1].name == "hatchery":
                     larvaResult2 = self.addLarva(real_time + build_time, 3, 0, False) #add 3 larva when hatchery is done building with 0 delay
+                if self.queue[-1].name in ["lair","hive"]: #copy over a buildings secondary and tertiary queue. used by lair and hive for larva injection and larva generation
+                    self.queue[-1].secondaryQueue = building.secondaryQueue 
+                    building.secondaryQueue = []
+                    self.queue[-1].tertiaryQueue = building.tertiaryQueue 
+                    building.tertiaryQueue = []
             if buildingMorphed != "none": # if this building morphs from a different building.
                 if buildingAddon == "none": # if the building is not an addon
                     building.endtime = real_time #Set the endtime of morphing building so it is removed
@@ -280,10 +292,16 @@ class Engine():
         # find all zerg bases
         for i in self.queue:
            if i.name in ["hatchery","lair","hive"]:
+               if i.state != "end":
+                   continue
                if i.starttime <= time < i.endtime:
                     zergBases.append(i)
-               elif i.starttime > time and i.name in ["lair","hive"]:
-                   # if starttime is in the future
+               elif i.starttime - lairBuildTime <= time < i.endtime and i.name in ["lair"]:
+                   # if starttime minus build time
+                   # and name is lair or hive. count this so larva will still be produced
+                   zergBases.append(i)
+               elif i.starttime - hiveBuildTime <= time < i.endtime and i.name in ["hive"]:
+                   # if starttime minus build time
                    # and name is lair or hive. count this so larva will still be produced
                    zergBases.append(i)
         
@@ -291,13 +309,16 @@ class Engine():
         larvaCount = self.unitCount("larva", time)
         larvaQueue = 0
 
-        if injection == False and delay > 0 and (larvaCount < (3 * totalBasesCount)): #only try to generate larva if there are less than 3 larva per hatch/lair/hive
+        if injection == False and delay > 0: #only try to generate larva if there are less than 3 larva per hatch/lair/hive
             #find zergBase that can generate larva the soonest
             for i in zergBases:
+                for j in i.secondaryQueue: #find all larva injections already in base's queue
+                    if j.endtime <= time + 11:
+                        larvaQueue += 3
                 for j in i.tertiaryQueue: #find all larva already in base's queue
-                    if j.starttime >= time or j.endtime >= time:
+                    if j.endtime > time:
                         larvaQueue += 1
-                if larvaQueue + larvaCount <= 3: # only add larva if queued larva and larva count is less than 3
+                if larvaQueue + larvaCount < 3: # only add larva if queued larva and larva count is less than 3
                     if i.starttime <= time:
                         if len(i.tertiaryQueue) == 0 or i.tertiaryQueue[-1].endtime<=time:
                             ans = time
@@ -327,8 +348,12 @@ class Engine():
                 self.queue.append(Unit('unit',"larva",time,state='end'))
                 larvaGenerated += 1
         elif injection == True: #if this is from queen larva injection
+            for i in zergBases:
+                for j in i.secondaryQueue: #find all larva injections already in base's queue
+                    if j.starttime < time < j.endtime:
+                        larvaQueue += 3
             for i in range(amount):
-                if (larvaCount < (19 * totalBasesCount)): #each injected base can only support 19 larva
+                if ((larvaCount + larvaQueue + larvaGenerated) < (19 * totalBasesCount)): #each injected base can only support 19 larva
                     self.queue.append(Unit('unit',"larva",time + delay,state='end'))
                     larvaGenerated += 1
 
@@ -590,7 +615,11 @@ class Engine():
 
         max_count = 0
         for i in self.queue:
-            if i.state == "end" and (i.name in ["nexus","command center","hatchery"]) and i.starttime <= time:
+            if i.state == "end" and (i.name in ["nexus","command center","hatchery"]) and i.starttime <= time <= i.endtime:
+                max_count += 16
+            elif i.state == "end" and (i.name in ["lair"]) and (i.starttime - lairBuildTime) <= time <= i.endtime:
+                max_count += 16
+            elif i.state == "end" and (i.name in ["hive"]) and (i.starttime - hiveBuildTime) <= time <= i.endtime:
                 max_count += 16
         return count, max_count
 
@@ -737,7 +766,7 @@ class Engine():
         else: # find time where there is enough energy
             energyDeficit = targetEnergy - latestEnergyValue
             futureTime = (energyDeficit / 0.5625) + unit.usedEnergy[-1]
-            return futureTime
+            return (int(futureTime + 1))
 
 #returns earliest time spawn larva function can be used
     def spawnLarva(self, time):
@@ -762,12 +791,19 @@ class Engine():
             tempBase = maxtime
             ans = maxtime
             for i in self.queue:
-                if i.name in ["hatchery","lair","hive"] and i.state == 'end':
+                if i.name in ["hatchery"] and i.state == 'end':
                     if i.starttime <= earliestQueenEnergy < i.endtime:
+                        zergBases.append(i)
+                elif i.name in ["lair"] and i.state == 'end':
+                    if i.starttime - lairBuildTime <= earliestQueenEnergy < i.endtime:
+                        zergBases.append(i)
+                elif i.name in ["hive"] and i.state == 'end':
+                    if i.starttime - hiveBuildTime <= earliestQueenEnergy < i.endtime:
                         zergBases.append(i)
 
             for i in zergBases:
-                if i.starttime <= earliestQueenEnergy:
+                if (i.starttime <= earliestQueenEnergy) or (i.name == "lair" and ((i.starttime - lairBuildTime) <= earliestQueenEnergy)) \
+                or (i.name == "hive" and ((i.starttime - hiveBuildTime) <= earliestQueenEnergy)):
                     if len(i.secondaryQueue) == 0 or i.secondaryQueue[-1].endtime<=earliestQueenEnergy:
                         ans = earliestQueenEnergy
                     else:
