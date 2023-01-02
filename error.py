@@ -31,12 +31,13 @@ CannotBuildLarva = -30
 NotEnoughEnergy = -31
 NoQueens = -32
 NoOrbitalCommands = -33
+CannotBuildAddons = -34
 
 def ErrorMsg(e):
     if e == NegativeTime:
         return "Wrong time - negative number was inserted"
     elif e == ConditionNotSatisfied:
-        return "Prerequisite building does not exist"
+        return "Requirements not met."
     elif e == NoWorkerExists:
         return "No worker exists"
     elif e == WrongBuildingName:
@@ -54,7 +55,7 @@ def ErrorMsg(e):
     elif e == NoBarrackExists:
         return "No appropriate production facility exists"
     elif e == NoOneGathersGasOrMineral:
-        return "No one gathers gas or mineral"
+        return "Not enough gas or minerals"
     elif e == MineralFieldsAreFull:
         return "Mineral fields are full"
     elif e == NoOneGathersGas:
@@ -99,5 +100,7 @@ def ErrorMsg(e):
         return "Spawn Larva skill requires at least 1 queen to be built."
     elif e == NoOrbitalCommands:
         return "Calldown MULE requires Orbital Command"
+    elif e == CannotBuildAddons:
+        return "Cannot build addons directly. Use icons above."
     else:
         return "Unknown error code"

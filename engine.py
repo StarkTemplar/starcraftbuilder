@@ -7,7 +7,9 @@ lairBuildTime = ""
 hiveBuildTime = ""
 larvaGenerationTime = 0
 injectionSpawnTime = 0
+queenStartingEnergy = 0
 muleLifespan = 0
+orbitalStartingEnergy = 0
 
 class Engine():
     def __init__(self, race):
@@ -23,7 +25,9 @@ class Engine():
         global hiveBuildTime
         global larvaGenerationTime
         global injectionSpawnTime
+        global queenStartingEnergy
         global muleLifespan
+        global orbitalStartingEnergy
 
         # game starts
         if race == 'protoss':
@@ -34,15 +38,17 @@ class Engine():
             n = 'command center'
             w = 'scv'
             startingSupply = 12
-            muleLifespan = 64
+            muleLifespan = 90
+            orbitalStartingEnergy = unit_dict['building'][race]['orbital command']["startingEnergy"]
         elif race == 'zerg':
             n = 'hatchery'
             w = 'drone'
             startingSupply = 12
-            lairBuildTime = unit_dict['building']['zerg']['lair']["buildtime"]
-            hiveBuildTime = unit_dict['building']['zerg']['hive']["buildtime"]
+            lairBuildTime = unit_dict['building'][race]['lair']["buildtime"]
+            hiveBuildTime = unit_dict['building'][race]['hive']["buildtime"]
             larvaGenerationTime = 11
             injectionSpawnTime = 40
+            queenStartingEnergy = unit_dict['unit'][race]['queen']["startingEnergy"]
         else:
             print("Wrong race : %s"%race)
             raise
@@ -94,7 +100,7 @@ class Engine():
 # remove item from input queue
     def DeleteItem(self, no):
         if no<-1 or no>=len(self.input):
-            return error.WrongIndex
+            return error.WrongIndex, 0
         elif no == -1:
             self.input.pop()
         else:
@@ -109,43 +115,43 @@ class Engine():
         for i in range(len(self.input)):
             if self.input[i][1] == 'unit' or self.input[i][1] == 'upgrade':
                 if i>0 and self.input[i-1][0] == "chronoboost":
-                    c = t.BuildUnit(self.input[i][1], self.input[i][0], c, True)
+                    c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, True)
                     if c<0:
-                        return c
+                        return c, missingpreReq
                     target = unit_dict[self.input[i][1]][self.race][self.input[i][0]]['buildfrom']
                     c = t.Chronoboost(target , c)
                     if c<0:
-                        return c
-                c = t.BuildUnit(self.input[i][1], self.input[i][0], c, False, i)
+                        return c, 0
+                c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, False, i)
                 if c<0:
-                    return c
+                    return c, missingpreReq
             elif self.input[i][1] == "building":
-                c = t.BuildUnit(self.input[i][1], self.input[i][0], c, inputno=i)
+                c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, inputno=i)
                 if c<0:
-                    return c
+                    return c, missingpreReq
             elif self.input[i][1] == "gas":
                 c = t.EarliestGasTime(c)
                 test = t.gatherGas(c)
                 if c<0:
-                    return c
+                    return c, 0
                 if test<0:
-                    return test
+                    return test, 0
             elif self.input[i][1] == "mineral":
                 test = t.gatherMineral(c)
                 if test<0:
-                    return test
+                    return test, 0
             elif self.input[i][1] == "scout":
                 test = t.gatherScout(c)
                 if test<0:
-                    return test
+                    return test, 0
             elif self.input[i][0] == "spawnlarva":
                 test = t.spawnLarva(c)
                 if test<0:
-                    return test
+                    return test, 0
             elif self.input[i][0] == "mule":
                 test = t.callMule(c)
                 if test<0:
-                    return test
+                    return test, 0
         self.queue = t.queue
         self.worker = t.worker
         self.chrono = t.chrono
@@ -154,21 +160,21 @@ class Engine():
             for j in range(len(self.chrono[i].time)):
                 print("chrono[%d].time[%d]:"%(i,j),self.chrono[i].time[j], \
                     "    target:",self.chrono[i].target[j].name)
-        return (self.queue[-1].starttime)
+        return self.queue[-1].starttime, 0
 
 # add a new item in the queue
 # and return real actual time it starts to build itself
     def BuildUnit (self, typ, unit, time, flag=False, inputno=-1):
         if time < 0:
             # inappropriate time
-            return error.NegativeTime
+            return error.NegativeTime, 0
         condition_time,condition_object = self.ConditionCheck(unit,typ,time)
         if condition_time == -1:
             # condition would never be satisfied
-            return error.ConditionNotSatisfied
+            return error.ConditionNotSatisfied, condition_object
         elif condition_time < 0:
             # unknown error occured
-            return condition_time
+            return condition_time, condition_object
         elif condition_time > time:
             time = condition_time
 
@@ -177,21 +183,21 @@ class Engine():
             gas = unit_dict[typ][self.race][unit]['gas']
             build_time = unit_dict[typ][self.race][unit]['buildtime']
         except:
-            return error.WrongUnitName
+            return error.WrongUnitName, 0
 
         res_time = self.ResourceTime(mineral, gas, time)
         if res_time < 0:
-            return res_time
+            return res_time, 0
 
         real_time, building = self.BuildableTimeAfter(typ, unit, res_time)
         if real_time < 0:
-            return real_time
+            return real_time, building
 
         if flag == True:
-            return real_time
+            return real_time, building
 
         if self.CheckUnique(typ,unit,real_time):
-            return error.UniqueOnly
+            return error.UniqueOnly, 0
 
         build_time = unit_dict[typ][self.race][unit]['buildtime']
         boosted = 0
@@ -221,7 +227,7 @@ class Engine():
         self.queue.append(Unit(typ,unit, real_time+build_time, state='end'))
         self.queue[-1].setLinked(self.queue[-2])
         if self.queue[-1].name == "queen":
-            self.queue[-1].startingEnergy = 25
+            self.queue[-1].startingEnergy = queenStartingEnergy
         if self.queue[-1].name == "orbital command":
             self.queue[-1].startingEnergy = 50
         self.queue[-2].setBuildingLink(building)
@@ -261,7 +267,17 @@ class Engine():
             for i in building:
                 i.add(self.queue[-2])
         elif (typ == "building" and buildingAddon != "none"):
-            building.add(self.queue[-2])
+            building.add(self.queue[-2]) #add item to building queue
+            if self.queue[-1].name in ["orbital command","planetary fortress"]:
+                building.endtime = real_time + build_time - 1 #set end time for morphing command center
+            if "with tech lab" in self.queue[-1].name:
+                building.endtime = real_time + build_time - 1 #set end time for morphing building
+                if "barracks" in self.queue[-1].name:
+                    self.queue.append(Unit('building',"barracks tech lab",real_time + build_time,state='end'))
+                elif "factory" in self.queue[-1].name:
+                    self.queue.append(Unit('building',"factory tech lab",real_time + build_time,state='end'))
+                elif "starport" in self.queue[-1].name:
+                    self.queue.append(Unit('building',"starport tech lab",real_time + build_time,state='end'))
             
         
         #output to engine window
@@ -308,7 +324,7 @@ class Engine():
             self.chrono[-1].addSchedule(self.queue[-1].starttime, self.queue[-1])
 
         self.queue = self.SortQueue(self.queue)
-        return real_time
+        return real_time, 0
 #addLarva function. Takes into account morphing lair or hive
 #use tertiaryQueue array to schedule larva generation as quickly as possible
     def addLarva(self, time, amount, delay, injection):
@@ -413,21 +429,36 @@ class Engine():
 
         # case 3 : if there are multiple conditions, return when all the conditions are satisfied
         elif type(t) == type([]):
-            count = 0
-            ans = 0
-            ans2 = []
-            for j in t:
-                for i in self.queue:
-                    if i.state == "end" and i.name == j and time<i.endtime:
-                        if ans < i.starttime:
-                            ans = i.starttime
-                        ans2.append(i)
-                        count += 1
-                        break
-            if count == len(t):
-                return ans, ans2
+            if typ in ["unit","upgrade"]:
+                count = 0
+                ans = 0
+                ans2 = []
+                for j in t:
+                    for i in self.queue:
+                        if i.state == "end" and i.name == j and time<i.endtime:
+                            if ans < i.starttime: #find highest time to meet all requirements
+                                ans = i.starttime
+                            ans2.append(i)
+                            count += 1
+                            break
+                if count == len(t): #must meet all requirements
+                    return ans, ans2
+            else: #buildings can satisfy any of the requirements instead of all
+                count = 0
+                ans = maxtime
+                ans2 = []
+                for j in t:
+                    for i in self.queue:
+                        if i.state == "end" and i.name == j and time<i.endtime:
+                            if ans > i.starttime: #find lowest time
+                                ans = i.starttime
+                            ans2.append(i)
+                            count += 1
+                            break
+                if count > 0: #can meet any requirement for buildings
+                    return ans, ans2
 
-        return error.ConditionNotSatisfied, 0
+        return error.ConditionNotSatisfied, t
 
 # returns the earliest time after given time, due to waiting queue.
 # if there is no waiting queue, return now (given 'time')
@@ -557,7 +588,7 @@ class Engine():
 
         # no available time because no corresponding building in buildFrom property exists
         if available <= 0 or building.endtime <= ans:
-            return error.NoBarrackExists, 0
+            return error.NoBarrackExists, target
         return ans, building
 
 # return True if the given upgrade or epic unit is already built
@@ -818,7 +849,7 @@ class Engine():
         earliestQueen = Unit
         for i in self.queue:
             if i.name == 'queen' and i.state == 'end':
-                tempEnergy = self.earliestEnergyUse(i,25)
+                tempEnergy = self.earliestEnergyUse(i,queenStartingEnergy)
                 if tempEnergy < earliestQueenEnergy:
                     earliestQueen = i
                     earliestQueenEnergy = tempEnergy

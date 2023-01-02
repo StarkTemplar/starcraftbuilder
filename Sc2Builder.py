@@ -424,7 +424,7 @@ class sc2buildUI(QMainWindow):
                     self.close()
                     newMD = sc2buildUI(race,self.savefilename)
                     newMD.engine.input = newinput
-                    err = newMD.engine.Rearrange()
+                    err, missingpreReq = newMD.engine.Rearrange()
 
                     if err < 0:
                         errmsg = error.ErrorMsg(err)
@@ -457,7 +457,7 @@ class sc2buildUI(QMainWindow):
 # order a worker to gather minerals who used to mine gases
     def gatherMineral(self):
         self.engine.AddItem("mineral", "mineral")
-        err = self.engine.Rearrange()
+        err, missingpreReq = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
@@ -470,7 +470,7 @@ class sc2buildUI(QMainWindow):
 # order a worker to gather gases who used to mine minerals
     def gatherGas(self):
         self.engine.AddItem("gas", "gas")
-        err = self.engine.Rearrange()
+        err, missingpreReq = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
@@ -484,7 +484,7 @@ class sc2buildUI(QMainWindow):
 # order a worker to scout who used to mine minerals
     def gatherScout(self):
         self.engine.AddItem("scout", "scout")
-        err = self.engine.Rearrange()
+        err, missingpreReq = self.engine.Rearrange()
         if err < 0:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
@@ -501,7 +501,7 @@ class sc2buildUI(QMainWindow):
             self.engine.AddItem("chronoboost","skill")
         elif self.race == "zerg" and no == 0:
             self.engine.AddItem("spawnlarva","skill")
-            err = self.engine.Rearrange()
+            err, missingpreReq = self.engine.Rearrange()
             if err < 0:
                 errmsg = error.ErrorMsg(err)
                 msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
@@ -509,7 +509,7 @@ class sc2buildUI(QMainWindow):
                 return err
         elif self.race == "terran" and no == 0:
             self.engine.AddItem("mule","skill")
-            err = self.engine.Rearrange()
+            err, missingpreReq = self.engine.Rearrange()
             if err < 0:
                 errmsg = error.ErrorMsg(err)
                 msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
@@ -518,7 +518,7 @@ class sc2buildUI(QMainWindow):
         self.drawBoard()
         self.newCursor(err)
         return 0
-
+#unitbuild
     def unitBuild(self, no):
         k = unit_dict['unit'][self.race].keys()
         item = 0
@@ -536,9 +536,21 @@ class sc2buildUI(QMainWindow):
             err = error.CannotBuildLarva
         else: #all other items get sent to additem function
             self.engine.AddItem(item, "unit")
-            err = self.engine.Rearrange()
+            err, missingpreReq = self.engine.Rearrange()
 
-        if err == error.AlreadyBoosted:
+        if err == error.ConditionNotSatisfied:
+            #errmsg = error.ErrorMsg(err)
+            errmsg = "Check if you are missing requirements:\n" + missingpreReq
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1)
+            return err
+        elif err == error.NoBarrackExists:
+            #errmsg = error.ErrorMsg(err)
+            errmsg = "Check if you are missing target building:\n" + missingpreReq
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1)
+            return err
+        elif err == error.AlreadyBoosted:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1) #delete most recent unit
@@ -577,9 +589,29 @@ class sc2buildUI(QMainWindow):
             msg = QMessageBox.warning(self,'error!','Building does not exist', QMessageBox.Ok, QMessageBox.Ok)
             return error.WrongBuildingName
 
-        self.engine.AddItem(item, "building")
-        err = self.engine.Rearrange()
-        if err < 0:
+        # do not build terran addons when button is pressed
+        if item in ["barracks tech lab","factory tech lab","starport tech lab"]:
+            err = error.CannotBuildAddons
+        else: #all other items get sent to additem function
+            self.engine.AddItem(item, "building")
+            err, missingpreReq = self.engine.Rearrange()
+        if err == error.ConditionNotSatisfied:
+            #errmsg = error.ErrorMsg(err)
+            errmsg = "Check if you are missing requirements:\n" + missingpreReq
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1)
+            return err
+        elif err == error.NoBarrackExists:
+            #errmsg = error.ErrorMsg(err)
+            errmsg = "Check if you are missing target building:\n" + missingpreReq
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1)
+            return err
+        elif err == error.CannotBuildAddons:
+            errmsg = error.ErrorMsg(err)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            return err
+        elif err < 0:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
@@ -602,8 +634,20 @@ class sc2buildUI(QMainWindow):
             return error.WrongUpgradeName
 
         self.engine.AddItem(item, "upgrade")
-        err = self.engine.Rearrange()
-        if err < 0:
+        err, missingpreReq = self.engine.Rearrange()
+        if err == error.ConditionNotSatisfied:
+            #errmsg = error.ErrorMsg(err)
+            errmsg = "Check if you are missing requirements:\n" + '\n'.join(missingpreReq)
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1)
+            return err
+        elif err == error.NoBarrackExists:
+            #errmsg = error.ErrorMsg(err)
+            errmsg = "Check if you are missing target building:\n" + missingpreReq
+            msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+            self.engine.DeleteItem(-1)
+            return err
+        elif err < 0:
             errmsg = error.ErrorMsg(err)
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
@@ -733,6 +777,7 @@ class sc2buildUI(QMainWindow):
         for i in self.inputNo:
             if i[0] == row and i[1] == col:
                 err = self.engine.DeleteItem(i[2])
+                err = err[0]
                 break
 
         # if there was no item clicked, move cursor to there
@@ -756,6 +801,7 @@ class sc2buildUI(QMainWindow):
     def eraseInputItem(self, row, col):
         err = error.NoItemToDelete
         err = self.engine.DeleteItem(col)
+        err = err[0]
         if err <0:
             return err
         self.newCursor(err)
@@ -814,6 +860,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         MD = sc2buildUI(sys.argv[1])
     else:
-        MD = sc2buildUI('zerg')
+        MD = sc2buildUI('terran')
     sys.exit(app.exec_())
 

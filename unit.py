@@ -260,7 +260,7 @@ unit_dict = {
             "gas":0,
             "supply":1,
             "buildtime":18,
-            "buildfrom":"barracks"
+            "buildfrom":["barracks","barracks reactor","barracks with tech lab"]
         },
         "marauder":{
             "no":2,
@@ -269,7 +269,8 @@ unit_dict = {
             "gas":25,
             "supply":2,
             "buildtime":21,
-            "buildfrom":"barracks tech lab",
+            "buildfrom":"barracks with tech lab",
+            "required":"barracks tech lab"
         },
         "reaper":{
             "no":3,
@@ -278,7 +279,7 @@ unit_dict = {
             "gas":50,
             "supply":1,
             "buildtime":32,
-            "buildfrom":"barracks",
+            "buildfrom":["barracks","barracks reactor","barracks with tech lab"]
         },
         "ghost":{
             "no":4,
@@ -287,7 +288,7 @@ unit_dict = {
             "gas":125,
             "supply":2,
             "buildtime":29,
-            "buildfrom":"barracks tech lab",
+            "buildfrom":"barracks with tech lab",
             "required":"ghost academy"
         },
         "hellion":{
@@ -297,7 +298,7 @@ unit_dict = {
             "gas":0,
             "supply":2,
             "buildtime":21,
-            "buildfrom":"factory",
+            "buildfrom":["factory","factory reactor","factory with tech lab"]
         },
         "hellbat":{
             "no":6,
@@ -306,7 +307,7 @@ unit_dict = {
             "gas":0,
             "supply":2,
             "buildtime":21,
-            "buildfrom":"factory",
+            "buildfrom":["factory","factory reactor", "factory with tech lab"],
             "required":"armory"
         },
         "siege tank":{
@@ -316,7 +317,8 @@ unit_dict = {
             "gas":125,
             "supply":3,
             "buildtime":32,
-            "buildfrom":"factory tech lab"
+            "buildfrom":"factory with tech lab",
+            "required":"factory tech lab"
         },
         "cyclone":{
             "no":8,
@@ -325,7 +327,8 @@ unit_dict = {
             "gas":100,
             "supply":3,
             "buildtime":32,
-            "buildfrom":"factory tech lab"
+            "buildfrom":"factory with tech lab",
+            "required":"factory tech lab"
         },
         "widow mine":{
             "no":9,
@@ -334,7 +337,7 @@ unit_dict = {
             "gas":25,
             "supply":2,
             "buildtime":21,
-            "buildfrom":"factory"
+            "buildfrom":["factory","factory reactor","factory with tech lab"]
         },
         "thor":{
             "no":10,
@@ -343,7 +346,7 @@ unit_dict = {
             "gas":200,
             "supply":6,
             "buildtime":43,
-            "buildfrom":"factory tech lab",
+            "buildfrom":"factory with tech lab",
             "required":"armory"
         },
         "viking":{
@@ -353,7 +356,7 @@ unit_dict = {
             "gas":75,
             "supply":2,
             "buildtime":30,
-            "buildfrom":"starport",
+            "buildfrom":["starport","starport reactor", "starport with tech lab"]
         },
         "medivac":{
             "no":12,
@@ -362,7 +365,7 @@ unit_dict = {
             "gas":100,
             "supply":2,
             "buildtime":30,
-            "buildfrom":"starport"
+            "buildfrom":["starport","starport reactor", "starport with tech lab"]
         },
         "liberator":{
             "no":13,
@@ -371,7 +374,7 @@ unit_dict = {
             "gas":150,
             "supply":3,
             "buildtime":43,
-            "buildfrom":"starport"
+            "buildfrom":["starport","starport reactor", "starport with tech lab"]
         },
         "raven":{
             "no":14,
@@ -380,7 +383,7 @@ unit_dict = {
             "gas":200,
             "supply":2,
             "buildtime":43,
-            "buildfrom":"starport tech lab",
+            "buildfrom":"starport with tech lab",
         },
         "banshee":{
             "no":15,
@@ -389,7 +392,7 @@ unit_dict = {
             "gas":100,
             "supply":3,
             "buildtime":43,
-            "buildfrom":"starport tech lab",
+            "buildfrom":"starport with tech lab",
         },
         "battle cruiser":{
             "no":16,
@@ -398,7 +401,7 @@ unit_dict = {
             "gas":300,
             "supply":6,
             "buildtime":64,
-            "buildfrom":"starport tech lab",
+            "buildfrom":"starport with tech lab",
             "required":"fusion core"
         },
     },
@@ -429,7 +432,8 @@ unit_dict = {
             "supply":2,
             "buildtime":36,
             "buildfrom":["hatchery","lair","hive"],
-            "required":"spawning pool"
+            "required":"spawning pool",
+            "startingEnergy":25
         },
         "baneling":{
             "no":3,
@@ -595,7 +599,7 @@ unit_dict = {
             "gas":0,
             "buildtime":32,
             "supplyoffer":0,
-            "required":["nexus","pylon"]
+            "required":"pylon"
         },
         "cybernetics core":{
             "no":4,
@@ -676,7 +680,7 @@ unit_dict = {
             "gas":0,
             "buildtime":46,
             "supplyoffer":0,
-            "required":["nexus","pylon"]
+            "required":"pylon"
         },
         "warp gate":{
             "no":13,
@@ -686,7 +690,7 @@ unit_dict = {
             "buildtime":7,
             "supplyoffer":0,
             "buildfrom":"gateway",
-            "required":["gateway","warp gate research"]
+            "required":"warp gate research"
         },
         "stargate":{
             "no":14,
@@ -714,8 +718,10 @@ unit_dict = {
             "gas":0,
             "buildtime":25,
             "supplyoffer":15,
+            "addon":"true",
             "buildfrom":"command center",
-            "required":"barracks"
+            "required":"barracks",
+            "startingEnergy":50
         },
         "planetary fortress":{
             "no":2,
@@ -724,6 +730,7 @@ unit_dict = {
             "gas":150,
             "buildtime":36,
             "supplyoffer":15,
+            "addon":"true",
             "buildfrom":"command center",
             "required":"engineering bay"
         },
@@ -787,7 +794,7 @@ unit_dict = {
             "required":"engineering bay",
             "supplyoffer":0
         },
-        "barracks tech lab":{
+        "barracks with tech lab":{
             "no":10,
             "race":"terran",
             "mineral":50,
@@ -798,7 +805,7 @@ unit_dict = {
             "required":"barracks",
             "supplyoffer":0
         },
-        "factory tech lab":{
+        "factory with tech lab":{
             "no":11,
             "race":"terran",
             "mineral":50,
@@ -809,7 +816,7 @@ unit_dict = {
             "required":"factory",
             "supplyoffer":0
         },
-        "starport tech lab":{
+        "starport with tech lab":{
             "no":12,
             "race":"terran",
             "mineral":50,
@@ -877,7 +884,7 @@ unit_dict = {
             "mineral":150,
             "gas":100,
             "buildtime":46,
-            "required":"factory",
+            "required":["factory","factory reactor","factory with tech lab"],
             "supplyoffer":0
         },
         "ghost academy":{
@@ -889,8 +896,41 @@ unit_dict = {
             "required":"barracks",
             "supplyoffer":0
         },
-        "fusion core":{
+        "barracks tech lab":{
             "no":20,
+            "race":"terran",
+            "mineral":0,
+            "gas":0,
+            "buildtime":0,
+            "buildfrom":"",
+            "addon":"true",
+            "required":"",
+            "supplyoffer":0
+        },
+        "factory tech lab":{
+            "no":21,
+            "race":"terran",
+            "mineral":0,
+            "gas":0,
+            "buildtime":0,
+            "buildfrom":"",
+            "addon":"true",
+            "required":"",
+            "supplyoffer":0
+        },
+        "starport tech lab":{
+            "no":22,
+            "race":"terran",
+            "mineral":0,
+            "gas":0,
+            "buildtime":0,
+            "buildfrom":"",
+            "addon":"true",
+            "required":"",
+            "supplyoffer":0
+        },
+        "fusion core":{
+            "no":23,
             "race":"terran",
             "mineral":150,
             "gas":150,
@@ -954,7 +994,7 @@ unit_dict = {
             "buildtime":57,
             "supplyoffer":15,
 			"buildfrom":"hatchery",
-            "required":["hatchery","spawning pool"]
+            "required":"spawning pool"
         },
         "roach warren":{
             "no":6,
