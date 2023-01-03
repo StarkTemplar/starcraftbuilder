@@ -520,6 +520,9 @@ class Engine():
                     if i.state == "end" and i.name == t and i.endtime == maxtime:
                         building.append(i)
             
+            # if building is empty, there are no available units or buildings to morph/build unit
+            if len(building) == 0:
+                return error.NoBarrackExists, target
             #find the highest startTime in building array
             ans = 0
             for i in building:

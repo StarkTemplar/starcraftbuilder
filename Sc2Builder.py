@@ -12,12 +12,18 @@ from PyQt5 import *
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
-VERSION = 1.2
+VERSION = 1.3
 
 def SecondToStr(sec):
     m = sec // 60
     sec -= 60*m
     return "%02d : %02d"%(m,sec)
+
+#format list of missing items to string
+def listToString(errorMessage):
+    if type(errorMessage) == list:
+        errorMessage = '\n'.join(errorMessage)
+    return errorMessage
 
 def IconPath(name):
     path = 'jpgFiles'
@@ -445,8 +451,9 @@ class sc2buildUI(QMainWindow):
             "sc2builder version: " + str(VERSION) +\
             "\nMade by 민병욱(Min Byeonguk)\n"+\
             "contact me : phraust1612@gmail.com\n"+\
+            "https://github.com/phraust1612\n"\
             "Updated by StarkTemplar\n"+\
-            "https://github.com/phraust1612",\
+            "https://github.com/StarkTemplar/starcraftbuilder",\
             QMessageBox.Ok, QMessageBox.Ok)
 
 # called when scroller moved (event)
@@ -518,6 +525,7 @@ class sc2buildUI(QMainWindow):
         self.drawBoard()
         self.newCursor(err)
         return 0
+
 #unitbuild
     def unitBuild(self, no):
         k = unit_dict['unit'][self.race].keys()
@@ -537,7 +545,11 @@ class sc2buildUI(QMainWindow):
         else: #all other items get sent to additem function
             self.engine.AddItem(item, "unit")
             err, missingpreReq = self.engine.Rearrange()
+        
+        #format list of missing items to string
+        missingpreReq = listToString(missingpreReq)
 
+        #check for error responses
         if err == error.ConditionNotSatisfied:
             #errmsg = error.ErrorMsg(err)
             errmsg = "Check if you are missing requirements:\n" + missingpreReq
@@ -595,6 +607,10 @@ class sc2buildUI(QMainWindow):
         else: #all other items get sent to additem function
             self.engine.AddItem(item, "building")
             err, missingpreReq = self.engine.Rearrange()
+
+        #format list of missing items to string
+        missingpreReq = listToString(missingpreReq)
+
         if err == error.ConditionNotSatisfied:
             #errmsg = error.ErrorMsg(err)
             errmsg = "Check if you are missing requirements:\n" + missingpreReq
@@ -635,9 +651,13 @@ class sc2buildUI(QMainWindow):
 
         self.engine.AddItem(item, "upgrade")
         err, missingpreReq = self.engine.Rearrange()
+
+        #format list of missing items to string
+        missingpreReq = listToString(missingpreReq)
+
         if err == error.ConditionNotSatisfied:
             #errmsg = error.ErrorMsg(err)
-            errmsg = "Check if you are missing requirements:\n" + '\n'.join(missingpreReq)
+            errmsg = "Check if you are missing requirements:\n" + missingpreReq
             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
             self.engine.DeleteItem(-1)
             return err
@@ -823,7 +843,7 @@ class sc2buildUI(QMainWindow):
         wBuilding = self.engine.countBuildingWorkers(self.cursor)
         wIdle = self.engine.countDoingNothingWorkers(self.cursor)
         wMule = self.engine.countMules(self.cursor)
-        text = "time : "+SecondToStr(self.cursor)+", mineral : "+str(mineral)+", gas : "+str(gas)+", supply : "+str(curSup)+"/"+str(maxSup)
+        text = "game time: "+SecondToStr(self.cursor)+", mineral: "+str(mineral)+", gas: "+str(gas)+", supply: "+str(curSup)+"/"+str(maxSup)
         self.label.setText(text)
         text = "workers minerals : " + str(wMineral)
         if self.engine.race == 'terran':

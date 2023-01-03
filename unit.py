@@ -422,7 +422,8 @@ unit_dict = {
             "gas":0,
             "supply":1,
             "buildtime":17,
-            "buildfrom":"larva"
+            "buildfrom":"larva",
+            "required":"spawning pool"
         },
         "queen":{
             "no":2,
