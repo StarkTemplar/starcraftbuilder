@@ -2,6 +2,7 @@ import sys
 import error
 import os
 import json
+import shelve
 from engine import *
 from unit import *
 from PyQt5.QtGui import *
@@ -443,6 +444,7 @@ class sc2buildUI(QMainWindow):
         return 0
 #menu new window
     def NewWindow(self, race, filename=''):
+        self.storeShelf(race)
         self.close()
         newMD = sc2buildUI(race)
 #menu about
@@ -875,12 +877,31 @@ class sc2buildUI(QMainWindow):
             self.buildingList.setItem(ind, 0, QTableWidgetItem(text))
             ind += 1
 
+#update shelf to store last used race
+    def storeShelf(self, lastUsedRace):
+        s = shelve.open("sc2builder.config")
+        try:
+            s['lastUsedRace'] = lastUsedRace
+        finally:
+            s.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     if len(sys.argv) > 1:
         MD = sc2buildUI(sys.argv[1])
     else:
-        MD = sc2buildUI('protoss')
+        s = shelve.open('sc2builder.config')
+        try:
+            templastUsedRace = s['lastUsedRace']
+        except:
+            templastUsedRace = ""
+            s.close()
+        finally:
+            s.close()
+        
+        if templastUsedRace in ["protoss","terran","zerg","protossBW","terranBW","zergBW"]:
+            MD = sc2buildUI(templastUsedRace)
+        else:
+            MD = sc2buildUI('terran') #fallback to terran if shelf has not stored a lastUsedRace
     sys.exit(app.exec_())
 
