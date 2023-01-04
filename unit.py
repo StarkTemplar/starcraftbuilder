@@ -575,7 +575,8 @@ unit_dict = {
             "mineral":400,
             "gas":0,
             "buildtime":71,
-            "supplyoffer":15
+            "supplyoffer":15,
+            "startingEnergy":50
         },
         "pylon":{
             "no":1,

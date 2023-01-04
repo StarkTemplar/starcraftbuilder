@@ -10,6 +10,8 @@ injectionSpawnTime = 0
 queenStartingEnergy = 0
 muleLifespan = 0
 orbitalStartingEnergy = 0
+nexusStartingEnergy = 0
+chronoBoostDuration = 0
 
 class Engine():
     def __init__(self, race):
@@ -28,12 +30,16 @@ class Engine():
         global queenStartingEnergy
         global muleLifespan
         global orbitalStartingEnergy
+        global nexusStartingEnergy
+        global chronoBoostDuration
 
         # game starts
         if race == 'protoss':
             n = 'nexus'
             w = 'probe'
             startingSupply = 12
+            nexusStartingEnergy = unit_dict['building'][race]['nexus']["startingEnergy"]
+            chronoBoostDuration = 20
         elif race == 'terran':
             n = 'command center'
             w = 'scv'
@@ -61,8 +67,7 @@ class Engine():
         
         #start chronoboost on starting nexus
         if race == 'protoss':
-            self.chrono.append(ChronoSchedule())
-            #self.chrono[0].addSchedule(0, self.queue[-1]) #only use if you want starting nexus to start with chronoboost
+            self.queue[0].startingEnergy = nexusStartingEnergy            
 
         #generate larva for zerg
         if race == "zerg":
@@ -115,18 +120,21 @@ class Engine():
         for i in range(len(self.input)):
             if self.input[i][1] == 'unit' or self.input[i][1] == 'upgrade':
                 if i>0 and self.input[i-1][0] == "chronoboost":
-                    c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, True)
+                    c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, True, True)
                     if c<0:
                         return c, missingpreReq
-                    target = unit_dict[self.input[i][1]][self.race][self.input[i][0]]['buildfrom']
-                    c = t.Chronoboost(target , c)
+                    #target = unit_dict[self.input[i][1]][self.race][self.input[i][0]]['buildfrom']
+                    #targetBuildTime = target = unit_dict[self.input[i][1]][self.race][self.input[i][0]]['buildtime']
+                    #c = t.Chronoboost(target , c)
+                    #c = t.callChronoBoost(target, c, targetBuildTime)
+                    #if c<0:
+                        #return c, 0
+                else:
+                    c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, False, False, i)
                     if c<0:
-                        return c, 0
-                c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, False, i)
-                if c<0:
-                    return c, missingpreReq
+                        return c, missingpreReq
             elif self.input[i][1] == "building":
-                c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, inputno=i)
+                c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, False, inputno=i)
                 if c<0:
                     return c, missingpreReq
             elif self.input[i][1] == "gas":
@@ -156,15 +164,15 @@ class Engine():
         self.worker = t.worker
         self.chrono = t.chrono
         self.queue = self.SortQueue(self.queue)
-        for i in range(len(self.chrono)):
-            for j in range(len(self.chrono[i].time)):
-                print("chrono[%d].time[%d]:"%(i,j),self.chrono[i].time[j], \
-                    "    target:",self.chrono[i].target[j].name)
+        #for i in range(len(self.chrono)):
+            #for j in range(len(self.chrono[i].time)):
+                #print("chrono[%d].time[%d]:"%(i,j),self.chrono[i].time[j], \
+                    #"    target:",self.chrono[i].target[j].name)
         return self.queue[-1].starttime, 0
 
 # add a new item in the queue
 # and return real actual time it starts to build itself
-    def BuildUnit (self, typ, unit, time, flag=False, inputno=-1):
+    def BuildUnit (self, typ, unit, time, chrono, flag=False, inputno=-1):
         if time < 0:
             # inappropriate time
             return error.NegativeTime, 0
@@ -193,43 +201,34 @@ class Engine():
         if real_time < 0:
             return real_time, building
 
-        if flag == True:
-            return real_time, building
+        #if flag == True:
+         #   return real_time, building
 
-        if self.CheckUnique(typ,unit,real_time):
+        if self.CheckUnique(typ,unit,real_time): #check for unique units like a mothership
             return error.UniqueOnly, 0
 
         build_time = unit_dict[typ][self.race][unit]['buildtime']
         boosted = 0
-        if typ != 'building':
-            for i in self.chrono:
-                for j in range(len(i.time)-1):
-                    if i.time[j] > real_time or i.time[j+1] < real_time:
-                        break
-                    if i.target[j] == building:
-                        if i.time[j+1] < real_time + (build_time / 1.15):
-                            boosted = 1
-                            build_time = (int)((i.time[j+1] - real_time) / 1.15) + (build_time - i.time[j+1] + real_time)
-                        else:
-                            boosted = 2
-                            build_time = (int)(build_time / 1.15)
-                if len(i.time)>0 and i.time[-1] <= real_time and i.target[-1] == building:
-                    chronoRemaining = (20 - (real_time - i.time[-1])) #only look for chronoboost within the past 20 seconds.
-                    if chronoRemaining > 0: 
-                        if build_time <= chronoRemaining: #if full build is under chrono
-                            boosted = 3
-                            build_time = (int)(build_time / 1.50) #probe would go from 12 to 8 seconds
-                        else: #build time is larger than chronoboost duration
-                            boosted = 1
-                            build_time = (int)(build_time - chronoRemaining + (chronoRemaining / 1.50)) #chronoboostRemaining is subtractd from the build and is replaced with chronoRemaining / 1.5
 
+        if chrono == True:
+            if typ in ['unit','upgrade']:
+                build_time, boosted = self.callChronoboost(building, real_time, build_time)
+                if build_time < 0:
+                    return error.NotEnoughNexusEnergy, 0
+            else:
+                return error.InvalidChronoboost
+        elif self.race == "protoss" and typ in ['unit','upgrade']:
+            build_time, boosted = self.chronoBuildtime(building, real_time, build_time)
+            
         self.queue.append(Unit(typ,unit, real_time, real_time+build_time))
         self.queue.append(Unit(typ,unit, real_time+build_time, state='end'))
         self.queue[-1].setLinked(self.queue[-2])
         if self.queue[-1].name == "queen":
             self.queue[-1].startingEnergy = queenStartingEnergy
         if self.queue[-1].name == "orbital command":
-            self.queue[-1].startingEnergy = 50
+            self.queue[-1].startingEnergy = orbitalStartingEnergy
+        if self.queue[-1].name == "nexus":
+            self.queue[-1].startingEnergy = nexusStartingEnergy
         self.queue[-2].setBuildingLink(building)
         self.queue[-2].setInputLink(inputno)
         self.queue[-2].boosted = boosted
@@ -284,7 +283,6 @@ class Engine():
         print("inputno:",inputno," build starttime:",real_time," buildtime:",build_time," build endtime:", real_time + build_time, " unit:",unit," boosted:",boosted)
 
         
-        
         #check if building morphs from another building ie zerg buildings or protoss warp gate
         #buildings that morph are warp gates or lair etc.
         try: 
@@ -316,12 +314,6 @@ class Engine():
             if buildingMorphed != "none": # if this building morphs from a different building.
                 if buildingAddon == "none": # if the building is not an addon
                     building.endtime = real_time #Set the endtime of morphing building so it is removed
-
-
-        # for the case of protoss nexus, you get one more possible chrono schedule
-        if self.queue[-1].name == "nexus":
-            self.chrono.append(ChronoSchedule())
-            self.chrono[-1].addSchedule(self.queue[-1].starttime, self.queue[-1])
 
         self.queue = self.SortQueue(self.queue)
         return real_time, 0
@@ -937,68 +929,98 @@ class Engine():
 
         return earliestOrbitalEnergy
 
-# add chronoboost schedule
-# if all nexuses are in their cooldown, return error.ChronoCooldown
-# if all available target objects are already boosted, return error.AlreadyBoosted
-    def Chronoboost(self, target, time):
+#returns earliest time a chronoboost can be used to build target unit
+    def callChronoboost(self, target, targetTime, build_time):
+        #verify target building is chronoboostable
         available_target_list = ['nexus', 'gateway', 'warp gate', 'forge',
             'cybernetics core', 'twilight council', 'templar archives', 'dark shrine',
             'stargate', 'fleet beacon', 'robotics facility', 'robotics bay']
-        if target not in available_target_list:
-            return error.UnboostableBuilding
+        if target.name not in available_target_list:
+            return error.UnboostableBuilding, 0
 
-        # try to find a target object from the queue
-        target_object = 0
+        #find all Nexuses
+        earliestNexusEnergy = maxtime
+        tempEnergy = maxtime
+        earliestNexus = Unit
         for i in self.queue:
-            if i.name == target and i.state == 'end' and i.starttime <= time <= i.endtime:
-                test = False
-                for j in self.chrono:
-                    test = j.checkTargetIsBoosted(i, time)
-                    if test == True:
-                        break
-                if test == False:
-                    target_object = i
-
-        if target_object == 0:
-            return error.AlreadyBoosted
-
-        test = error.ChronoNotAvailable
-        for i in self.chrono:
-            test = i.addSchedule(time, target_object)
-            if test == 0:
-                chrono_schedule = i
-                break
-
-        if test == error.ChronoNotAvailable or test == error.ChronoCooldown:
-            return test
-
-        # try to modify unit/upgrade build time due to changed chronoboosting schedule
-        # (for the case of changing boosting duration)
+            if i.name == 'nexus' and i.state == 'end':
+                tempEnergy = self.earliestEnergyUse(i,50)
+                if tempEnergy < earliestNexusEnergy:
+                    earliestNexus = i
+                    earliestNexusEnergy = tempEnergy
         
-        #doesn't seem to be in use for unit chronoboosting
-        for i in self.queue:
-            if i.state == "start" and i.endtime > time and i.starttime<time:
-                link = i.linked
-                if link == 0:
-                    continue
-                if i.type == "unit":
-                    build_time = unit_dict['unit'][self.race][i.name]['buildtime']
-                elif i.type == "upgrade":
-                    build_time = unit_dict['upgrade'][self.race][i.name]['buildtime']
+        #reset earliestNexusEnergy to target build time
+        if earliestNexusEnergy < targetTime:
+            earliestNexusEnergy = targetTime
+
+        if earliestNexusEnergy == 10000:
+            return error.NotEnoughNexusEnergy, 0
+        elif earliestNexusEnergy >= (targetTime + build_time):
+            return error.NotEnoughNexusEnergy, 0
+        else:
+            #find all target buildings
+            earliestTarget = Unit
+            chronoStart = maxtime
+            ans = maxtime
+            
+            #for i in allTargets:
+            if (target.starttime <= earliestNexusEnergy):
+                if len(target.secondaryQueue) == 0 or target.secondaryQueue[-1].endtime<=earliestNexusEnergy:
+                    ans = earliestNexusEnergy
                 else:
-                    continue
-                building = i.buildlinked
+                    #if ans > target.queue[-1].endtime:
+                    ans = target.secondaryQueue[-1].endtime
+            else:
+                if len(target.secondaryQueue) == 0:
+                    #if ans > target.starttime:
+                    ans = target.starttime
+                else:
+                    #if ans > target.queue[-1].endtime:
+                        ans = target.secondaryQueue[-1].endtime
+           
+            chronoStart = ans
 
-                for j in range(len(chrono_schedule.time)-1):
-                    if chrono_schedule.time[j] > i.starttime or chrono_schedule.time[j+1] < i.starttime:
-                        break
-                    if chrono_schedule.target[j] == building:
-                        if chrono_schedule.time[j+1] < i.starttime + (build_time / 1.15):
-                            i.boosted = 1
-                            build_time = (int)((chrono_schedule.time[j+1] - i.starttime) / 1.15) \
-                                + (build_time - chrono_schedule.time[j+1] + i.starttime)
-                            print("no:",i.inputlink,"time:",i.starttime,i.name,":",build_time)
-                i.endtime = i.starttime + build_time
-                link.starttime = i.endtime
+            #check if this chrono can affect this build
+            if targetTime + build_time <= chronoStart:
+                error.NotEnoughNexusEnergy, 0
 
-        return test
+            #put in chronoboost in secondary queue of target
+            target.secondaryQueue.append(Unit('skill','chronoboost', chronoStart, chronoStart+chronoBoostDuration))
+            # use energy on nexus
+            earliestNexus.useEnergy(earliestNexusEnergy)
+            
+            #call chronoBuildTime function to calculate new build time
+            build_time, boosted = self.chronoBuildtime(target, targetTime, build_time)
+
+        return build_time, boosted
+
+#calculate new build time from chronoboost
+    def chronoBuildtime(self, target, targetTime, build_time):
+        boostedSeconds = 0
+        for i in target.secondaryQueue:
+            chronoStart = i.starttime
+            chronoEnd = i.endtime
+            if chronoEnd <= targetTime or chronoStart >= (targetTime + build_time):
+                continue
+            elif chronoStart <= targetTime and (targetTime + build_time) <= chronoEnd:
+                boostedSeconds += (chronoEnd - chronoStart) - (targetTime - chronoStart) - (chronoEnd - (targetTime + build_time))
+            elif chronoStart > targetTime and targetTime + build_time > chronoEnd:
+                boostedSeconds += (chronoEnd - chronoStart)
+            elif chronoStart > targetTime and (targetTime + build_time) > chronoStart and (targetTime + build_time) < chronoEnd:
+                boostedSeconds += (chronoEnd - chronoStart) - (chronoEnd - (targetTime + build_time))
+            elif targetTime > chronoStart and targetTime + build_time > chronoEnd:
+                boostedSeconds += (chronoEnd - chronoStart) - (targetTime - chronoStart)
+            else:
+                boostedSeconds += (chronoEnd - chronoStart)
+        
+        if boostedSeconds == 0: #no chronoboost applied
+            return build_time, 0
+        elif boostedSeconds >= build_time: #whole build time is under chronoboost
+            build_time = (int)(build_time / 1.50) #probe would go from 12 to 8 seconds
+            boosted = 3
+        else: #partial chronoboost
+            boosted = 1
+            build_time = (int)(build_time - boostedSeconds + (boostedSeconds / 1.50)) #boostedSeconds is subtractd from the build and is replaced with boostedSeconds / 1.5
+
+        return build_time, boosted
+

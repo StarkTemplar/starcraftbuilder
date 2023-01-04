@@ -32,6 +32,8 @@ NotEnoughEnergy = -31
 NoQueens = -32
 NoOrbitalCommands = -33
 CannotBuildAddons = -34
+NotEnoughNexusEnergy = -35
+InvalidChronoboost = -36
 
 def ErrorMsg(e):
     if e == NegativeTime:
@@ -102,5 +104,9 @@ def ErrorMsg(e):
         return "Calldown MULE requires Orbital Command"
     elif e == CannotBuildAddons:
         return "Cannot build addons directly. Use icons above."
+    elif e == NotEnoughNexusEnergy:
+        return "Not enough Nexus energy to chronoboost unit/upgrade"
+    elif e == InvalidChronoboost:
+        return "Cannot chronoboost item. Must be unit or building."
     else:
         return "Unknown error code"

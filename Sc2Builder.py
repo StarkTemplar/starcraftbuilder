@@ -506,6 +506,7 @@ class sc2buildUI(QMainWindow):
     def useSkill(self,no):
         if self.race == "protoss" and no == 0:
             self.engine.AddItem("chronoboost","skill")
+            return 0
         elif self.race == "zerg" and no == 0:
             self.engine.AddItem("spawnlarva","skill")
             err, missingpreReq = self.engine.Rearrange()
@@ -880,6 +881,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         MD = sc2buildUI(sys.argv[1])
     else:
-        MD = sc2buildUI('terran')
+        MD = sc2buildUI('protoss')
     sys.exit(app.exec_())
 

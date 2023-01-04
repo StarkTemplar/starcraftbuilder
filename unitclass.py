@@ -16,9 +16,9 @@ class Unit():
         self.inputlink = 0
         self.boosted = 0
         self.queue = []
-        self.secondaryQueue = [] #used for zerg base injections
+        self.secondaryQueue = [] #used for zerg base injections, terran mules, protoss chronoboost
         self.tertiaryQueue = [] #used for zerg base larva generation
-        self.startingEnergy = 0 #energy for queens
+        self.startingEnergy = 0 #energy for queens, orbital commands, protoss nexus
         self.usedEnergy = [] #time of used energies
 
     def setLinked(self, link):
@@ -81,26 +81,3 @@ class Worker():
         self.scouting.append(0)
         self.building.append(0)
         self.mule.append(mule)
-
-class ChronoSchedule():
-    def __init__(self):
-        self.time = []
-        self.target = []
-
-    def addSchedule(self, t, b):
-        if len(self.time)>0 and self.time[-1] + 88 > t: #default of 4 seconds. changed to 88 seconds to mimic energy generation rate of 0.5625 energy gained per second.
-            return error.ChronoCooldown
-        self.time.append(t)
-        self.target.append(b)
-        return 0
-
-    def checkTargetIsBoosted(self, t, time):
-        if len(self.target)>0: #starting nexus target array will be empty
-            if self.target[-1] == t: #check if target and item in queue are the same
-                if len(self.time)>0 and time - self.time[-1] > 20: #verify chronoboost is at least 20 seconds after previous chronoboost
-                    return 0
-                else:
-                    return error.AlreadyBoosted
-            return 0
-        else:
-            return 0
