@@ -235,7 +235,7 @@ class Engine():
                     return error.NotEnoughNexusEnergy, 0
             else:
                 return error.InvalidChronoboost
-        elif self.race == "protoss" and typ in ['unit','upgrade']:
+        elif self.race == "protoss" and typ in ['unit','upgrade'] and unit != "archon":
             build_time, boosted = self.chronoBuildtime(building, real_time, build_time)
             
         self.queue.append(Unit(typ,unit, real_time, real_time+build_time))
@@ -633,12 +633,16 @@ class Engine():
 
 # returns current supply and maximum limit
     def CurrentSupply (self, time):
-        current_supply = startingSupply
+        current_supply = 0
         for i in self.queue:
-            if i.type != 'unit' or i.state != "start":
+            if i.type != 'unit': # ignore non-units
                 continue
-            if i.starttime <= time:
+            elif i.state == "end" and i.starttime == 0 and i.endtime > time: # count starting units
                 current_supply += unit_dict['unit'][self.race][i.name]['supply']
+            elif i.state == "start" and i.starttime <= time: # count items as consuming supply when they start building
+                current_supply += unit_dict['unit'][self.race][i.name]['supply']
+            elif i.state == "end" and i.starttime > 0 and time > i.endtime: # remove supply for units that were morphed
+                current_supply -= unit_dict['unit'][self.race][i.name]['supply']
 
         max_supply = 0
         for i in self.queue:
