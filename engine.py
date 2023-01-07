@@ -12,6 +12,8 @@ muleLifespan = 0
 orbitalStartingEnergy = 0
 nexusStartingEnergy = 0
 chronoBoostDuration = 0
+energyRegenRate = 0.0
+fullySaturatedBase = 0
 
 class Engine():
     def __init__(self, race):
@@ -32,6 +34,8 @@ class Engine():
         global orbitalStartingEnergy
         global nexusStartingEnergy
         global chronoBoostDuration
+        global energyRegenRate
+        global fullySaturatedBase
 
         # game starts
         if race == 'protoss':
@@ -55,6 +59,21 @@ class Engine():
             larvaGenerationTime = 11
             injectionSpawnTime = 40
             queenStartingEnergy = unit_dict['unit'][race]['queen']["startingEnergy"]
+        elif race == 'protossBW':
+            n = 'nexus'
+            w = 'probe'
+            startingSupply = 4
+        elif race == 'terranBW':
+            n = 'command center'
+            w = 'scv'
+            startingSupply = 4
+        elif race == 'zergBW':
+            n = 'hatchery'
+            w = 'drone'
+            startingSupply = 4
+            lairBuildTime = unit_dict['building'][race]['lair']["buildtime"]
+            hiveBuildTime = unit_dict['building'][race]['hive']["buildtime"]
+            larvaGenerationTime = 11
         else:
             print("Wrong race : %s"%race)
             raise
@@ -65,12 +84,13 @@ class Engine():
         for i in range(startingSupply):
             self.queue.append(Unit('unit',w,0,state='end'))
         
-        #start chronoboost on starting nexus
+        #add energy to nexus. SC2 only
         if race == 'protoss':
             self.queue[0].startingEnergy = nexusStartingEnergy            
 
-        #generate larva for zerg
-        if race == "zerg":
+        #generate larva and overlord for zerg and zergBW
+        if race in ["zerg","zergBW"]:
+            self.queue.append(Unit('building',"overlord",0,state='end'))
             for i in range(3):
                 self.queue.append(Unit('unit',"larva",0,state='end'))
         
@@ -78,6 +98,14 @@ class Engine():
         if race in ["protoss","terran","zerg"]:
             self.worker.addSchedule(0,8,0,0,0,0) #8 workers get to a mineral patch immediatly
             self.worker.addSchedule(3.825,4,0,0,0,0) #4 workers have to wait 3.825 seconds to start mining
+            energyRegenRate = 0.7875
+            fullySaturatedBase = 24
+
+        # Starcraft BW
+        if race in ["protossBW","terranBW","zergBW"]:
+            self.worker.addSchedule(0,4,0,0,0,0) #4 workers get to a mineral patch immediatly            
+            energyRegenRate = 0.744
+            fullySaturatedBase = 27
 
 # quick sort according to 'starttime'
     def SortQueue(self, x):
@@ -123,12 +151,6 @@ class Engine():
                     c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, True, True)
                     if c<0:
                         return c, missingpreReq
-                    #target = unit_dict[self.input[i][1]][self.race][self.input[i][0]]['buildfrom']
-                    #targetBuildTime = target = unit_dict[self.input[i][1]][self.race][self.input[i][0]]['buildtime']
-                    #c = t.Chronoboost(target , c)
-                    #c = t.callChronoBoost(target, c, targetBuildTime)
-                    #if c<0:
-                        #return c, 0
                 else:
                     c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, False, False, i)
                     if c<0:
@@ -164,10 +186,6 @@ class Engine():
         self.worker = t.worker
         self.chrono = t.chrono
         self.queue = self.SortQueue(self.queue)
-        #for i in range(len(self.chrono)):
-            #for j in range(len(self.chrono[i].time)):
-                #print("chrono[%d].time[%d]:"%(i,j),self.chrono[i].time[j], \
-                    #"    target:",self.chrono[i].target[j].name)
         return self.queue[-1].starttime, 0
 
 # add a new item in the queue
@@ -248,8 +266,10 @@ class Engine():
             if building.name == "larva": #if larva is used call addLarva function
                 if self.queue[-1].name == "zergling": # spawn extra zergling because 2 zergling are created from 1 larva
                     self.queue.append(Unit('unit',"zergling",real_time + build_time,state='end'))
+                elif self.queue[-1].name == "scourge": # spawn extra scourge because 2 scourge are created from 1 larva
+                    self.queue.append(Unit('unit',"scourge",real_time + build_time,state='end'))
                 larvaResult = self.addLarva(real_time, 1, larvaGenerationTime, False) #add 1 larva with 11 second delay
-        elif type(building) == list and self.queue[-1].name == "archon": #units that morph from multiple units IE archon
+        elif type(building) == list and self.queue[-1].name in ['archon','dark archon']: #units that morph from multiple units IE archon
             for i in building:
                 i.endtime = real_time
 
@@ -277,6 +297,18 @@ class Engine():
                     self.queue.append(Unit('building',"factory tech lab",real_time + build_time,state='end'))
                 elif "starport" in self.queue[-1].name:
                     self.queue.append(Unit('building',"starport tech lab",real_time + build_time,state='end'))
+            elif "factory with machine shop" in self.queue[-1].name:
+                building.endtime = real_time + build_time - 1 #set end time for morphing building
+                self.queue.append(Unit('building',"factory machine shop",real_time + build_time,state='end'))
+            elif "starport with control tower" in self.queue[-1].name:
+                building.endtime = real_time + build_time - 1 #set end time for morphing building
+                self.queue.append(Unit('building',"starport control tower",real_time + build_time,state='end'))
+            elif "cc with comsat station" in self.queue[-1].name:
+                building.endtime = real_time + build_time - 1 #set end time for morphing building
+                self.queue.append(Unit('building',"cc comsat station",real_time + build_time,state='end'))
+            elif "cc with nuclear silo" in self.queue[-1].name:
+                building.endtime = real_time + build_time - 1 #set end time for morphing building
+                self.queue.append(Unit('building',"cc nuclear silo",real_time + build_time,state='end'))
             
         
         #output to engine window
@@ -293,14 +325,14 @@ class Engine():
         # in case of building a building, subtract a mineral worker for x time depending on race
         # protoss 2 seconds, terran whole build time, zerg loses a worker
         if typ == 'building':
-            if self.race == 'protoss':
+            if self.race in ['protoss','protossBW']:
                 self.worker.addSchedule(real_time, -1, 0, 0, 0, 1) #remove worker from minerals to start building
                 self.worker.addSchedule(real_time + 2, 1, 0, 0, 0, -1) #add worker to minerals 2 seconds later
-            elif self.race == 'terran':
+            elif self.race in ['terran','terranBW']:
                 if buildingMorphed == "none":
                     self.worker.addSchedule(real_time, -1, 0, 0, 0, 1)#remove worker from minerals to start building
                     self.worker.addSchedule(real_time + build_time + 2, 1, 0, 0, 0, -1) #add worker to minerals when building is done building + 2 seconds
-            else: #zerg
+            else: #zerg or zergBW
                 if buildingMorphed == "drone":
                     self.worker.addSchedule(real_time, -1, 0, 0, 0, 1)#remove worker from minerals to start building
                     self.worker.addSchedule(real_time + build_time, 0, 0, 0, 0, -1) #remove worker from building stats. do not add back to minerals since drone is gone
@@ -317,6 +349,7 @@ class Engine():
 
         self.queue = self.SortQueue(self.queue)
         return real_time, 0
+
 #addLarva function. Takes into account morphing lair or hive
 #use tertiaryQueue array to schedule larva generation as quickly as possible
     def addLarva(self, time, amount, delay, injection):
@@ -521,9 +554,9 @@ class Engine():
                 if ans<i.starttime:
                     ans = i.starttime
             
-            if len(building) < 2 and unit == 'archon': #archon needs 2 units to build from
+            if len(building) < 2 and unit in ['archon','dark archon']: #archon needs 2 units to build from
                 return error.NoBarrackExists, 0 #not enough templars to build archon
-            elif unit == 'archon':
+            elif unit in ['archon','dark archon']:
                 return ans,building #enough templars to build archon
             else:
                 #for all other units that only need 1 item from their list of many IE queen can be built from hatchery, lair, or hive
@@ -634,17 +667,15 @@ class Engine():
     def AccResources(self, time):
         mineral = 50 #starting minerals
         gas = 0 #starting gas
-        #tmp = Worker()
-        #tmp.time = self.worker.time.copy()
 
         for i in range(len(self.worker.time)):
             if self.worker.time[i] > time:
                 continue
             #normal mineral workers
-            mineral += 5 * self.worker.mineral[i] * (int) ((time - self.worker.time[i]) / 5.4)
+            mineral += int(5 * self.worker.mineral[i] * ((time - self.worker.time[i]) / 5.4))
             #MULE on minerals
             mineral += int(25 * self.worker.mule[i] * ((time - self.worker.time[i]) / 6.9))
-            gas += 4 * self.worker.gas[i] * (int) ((time - self.worker.time[i]) / 3.9)
+            gas += int(4 * self.worker.gas[i] * ((time - self.worker.time[i]) / 3.9))
 
         for i in self.queue:
             if i.starttime > time:
@@ -674,11 +705,11 @@ class Engine():
         max_count = 0
         for i in self.queue:
             if i.state == "end" and (i.name in ["nexus","command center","orbital command","planetary fortress","hatchery"]) and i.starttime <= time <= i.endtime:
-                max_count += 16
+                max_count += fullySaturatedBase
             elif i.state == "end" and (i.name in ["lair"]) and (i.starttime - lairBuildTime) <= time <= i.endtime:
-                max_count += 16
+                max_count += fullySaturatedBase
             elif i.state == "end" and (i.name in ["hive"]) and (i.starttime - hiveBuildTime) <= time <= i.endtime:
-                max_count += 16
+                max_count += fullySaturatedBase
         return count, max_count
 
 # return the number of workers gathering gases and the maximum
@@ -820,7 +851,7 @@ class Engine():
         if usedEnergy == 0:
             return unit.starttime
         
-        generatedEnergy = (unit.usedEnergy[-1] - unit.starttime) * 0.5625
+        generatedEnergy = (unit.usedEnergy[-1] - unit.starttime) * energyRegenRate
         if generatedEnergy + unit.startingEnergy - usedEnergy >= 200:
             generatedEnergy = 200 #maximum energy
         else:
@@ -832,7 +863,7 @@ class Engine():
             return unit.usedEnergy[-1]
         else: # find time where there is enough energy
             energyDeficit = targetEnergy - latestEnergyValue
-            futureTime = (energyDeficit / 0.5625) + unit.usedEnergy[-1]
+            futureTime = (energyDeficit / energyRegenRate) + unit.usedEnergy[-1]
             return (int(futureTime + 1))
 
 #returns earliest time spawn larva function can be used

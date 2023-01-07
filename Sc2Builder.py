@@ -26,10 +26,10 @@ def listToString(errorMessage):
         errorMessage = '\n'.join(errorMessage)
     return errorMessage
 
-def IconPath(name):
-    path = 'jpgFiles'
-    if os.path.exists('jpgFiles'):
-        path = 'jpgFiles'
+def IconPath(name, race):
+    path = 'jpgFiles/' + race
+    if os.path.exists(path):
+        path = 'jpgFiles/' + race
     elif os.path.exists('../../jpgFiles'):
         path = '../../jpgFiles'
     else:
@@ -67,7 +67,7 @@ class sc2buildUI(QMainWindow):
         #testFont.setPointSize(5)
         #self.setFont(testFont)
         
-        filename = IconPath('sc2icon')
+        filename = IconPath('sc2icon', self.race)
         if filename != error.NoPathExists:
             self.setWindowIcon(QIcon(filename))
 
@@ -230,15 +230,15 @@ class sc2buildUI(QMainWindow):
         self.mineralButton.move(980, 85)
         self.gasButton.move(1020,85) #default 1010
         self.scoutButton.move(1060,85)
-        filename = IconPath('mineral')
+        filename = IconPath('mineral', self.race)
         if filename != error.NoPathExists:
             self.mineralButton.setIcon(QIcon(filename))
         self.mineralButton.setIconSize(QSize(38,38)) #default 28
-        filename = IconPath('gas')
+        filename = IconPath('gas', self.race)
         if filename != error.NoPathExists:
             self.gasButton.setIcon(QIcon(filename))
         self.gasButton.setIconSize(QSize(38,38)) #default 28
-        filename = IconPath('scout')
+        filename = IconPath('scouting', self.race)
         if filename != error.NoPathExists:
             self.scoutButton.setIcon(QIcon(filename))
         self.scoutButton.setIconSize(QSize(38,38)) #default 28
@@ -257,24 +257,26 @@ class sc2buildUI(QMainWindow):
             self.skillButton[-1].move(1100+40*x, 85) #default +30
             self.skillButton[x].clicked.connect(lambda state, xx = x: self.useSkill(xx))
         if self.race == "protoss":
-            filename = IconPath('chronoboost')
+            filename = IconPath('chronoboost', self.race)
             if filename != error.NoPathExists:
                 self.skillButton[0].setIcon(QIcon(filename))
             self.skillButton[0].setIconSize(QSize(38,38)) #default 28
         if self.race == "zerg":
-            filename = IconPath('spawnlarva')
+            filename = IconPath('spawnlarva', self.race)
             if filename != error.NoPathExists:
                 self.skillButton[0].setIcon(QIcon(filename))
             self.skillButton[0].setIconSize(QSize(38,38)) #default 28
         if self.race == "terran":
-            filename = IconPath('mule')
+            filename = IconPath('mule', self.race)
             if filename != error.NoPathExists:
                 self.skillButton[0].setIcon(QIcon(filename))
             self.skillButton[0].setIconSize(QSize(38,38)) #default 28
         
         #unit table
         unit_ = list(unit_dict['unit'][self.race].items())
-        if len(unit_) < 25:
+        if len(unit_) < 20:
+            unitLength = 4
+        elif len(unit_) < 25:
             unitLength = 5
         else:
             unitLength = 6
@@ -285,7 +287,7 @@ class sc2buildUI(QMainWindow):
                 self.unitButton[-1].move(980+40*x,125+40*y) #default +30
                 self.unitButton[-1].clicked.connect(lambda state,i=5*y+x: self.unitBuild(i))
         for i in range(len(unit_)):
-            filename = IconPath(unit_[i][0])
+            filename = IconPath(unit_[i][0], self.race)
             if filename == error.NoPathExists:
                 continue
             if type(filename) == type(""):
@@ -294,11 +296,18 @@ class sc2buildUI(QMainWindow):
                 self.unitButton[unit_[i][1]['no']].setToolTip(str(unit_[i][0] + "\n m: " + str(unit_[i][1]['mineral']) + "\n g: " + str(unit_[i][1]['gas']) + "\n s: " + str(unit_[i][1]['supply']) + "\n t: " + str(unit_[i][1]['buildtime'])))
         
         #building table
-        if unitLength <= 5:
+        if unitLength <= 4:
+            buildingOffset = 285
+        elif unitLength == 5:
             buildingOffset = 335
         else:
             buildingOffset = 375
         building_ = list(unit_dict['building'][self.race].items())
+        
+        if len(building_) < 25:
+            buildingLength = 5
+        else:
+            buildingLength = 6
         for y in range(5):
             for x in range(5):
                 self.buildingButton.append(QPushButton(self))
@@ -306,7 +315,7 @@ class sc2buildUI(QMainWindow):
                 self.buildingButton[-1].move(980+40*x,buildingOffset+40*y) #default +30
                 self.buildingButton[-1].clicked.connect(lambda state,i=5*y+x: self.structureBuild(i))
         for i in range(len(building_)):
-            filename = IconPath(building_[i][0])
+            filename = IconPath(building_[i][0], self.race)
             if filename == error.NoPathExists:
                 continue
             if type(filename) == type(""):
@@ -315,12 +324,16 @@ class sc2buildUI(QMainWindow):
                 self.buildingButton[building_[i][1]['no']].setToolTip(str(building_[i][0] + "\n m: " + str(building_[i][1]['mineral']) + "\n g: " + str(building_[i][1]['gas']) + "\n t: " + str(building_[i][1]['buildtime'])))
 
         #upgrade table
-        if unitLength <= 5:
+        if unitLength <= 4:
+            upgradeOffset = 495
+        elif unitLength == 5:
             upgradeOffset = 545
         else:
             upgradeOffset = 585
         upgrade_ = list(unit_dict['upgrade'][self.race].items())
-        if len(upgrade_) >= 31:
+        if len(upgrade_) >= 36:
+            upgradeRange = 8
+        elif len(upgrade_) >= 31:
             upgradeRange = 7
         else:
             upgradeRange = 6
@@ -331,7 +344,7 @@ class sc2buildUI(QMainWindow):
                 self.upgradeButton[-1].move(980+40*x,upgradeOffset+40*y) #default +30
                 self.upgradeButton[-1].clicked.connect(lambda state,i=5*y+x: self.upgradeBuild(i))
         for i in range(len(upgrade_)):
-            filename = IconPath(upgrade_[i][0])
+            filename = IconPath(upgrade_[i][0], self.race)
             if filename == error.NoPathExists:
                 continue
             if type(filename) == type(""):
@@ -548,10 +561,10 @@ class sc2buildUI(QMainWindow):
         else: #all other items get sent to additem function
             self.engine.AddItem(item, "unit")
             err, missingpreReq = self.engine.Rearrange()
+            #format list of missing items to string
+            missingpreReq = listToString(missingpreReq)
         
-        #format list of missing items to string
-        missingpreReq = listToString(missingpreReq)
-
+ 
         #check for error responses
         if err == error.ConditionNotSatisfied:
             #errmsg = error.ErrorMsg(err)
@@ -690,7 +703,7 @@ class sc2buildUI(QMainWindow):
         self.inputTable.setColumnCount(len(self.engine.input))
         for i in range(len(self.engine.input)):
             self.inputTable.setColumnWidth(i, 40)
-            filename = IconPath(self.engine.input[i][0])
+            filename = IconPath(self.engine.input[i][0], self.race)
             if filename == error.NoPathExists:
                 continue
             if type(filename) == type(""):
