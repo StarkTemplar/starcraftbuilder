@@ -14,6 +14,7 @@ from PyQt5 import *
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
 VERSION = 1.3
+tableColumnWidth = 0
 
 def SecondToStr(sec):
     m = sec // 60
@@ -61,6 +62,8 @@ class sc2buildUI(QMainWindow):
         self.setMinimumSize(1400,840)
         self.center()
         self.setWindowTitle('sc2builder')
+        global tableColumnWidth
+        tableColumnWidth = 5
 
         #smaller font to test column spacing
         #testFont = QFont()
@@ -174,7 +177,7 @@ class sc2buildUI(QMainWindow):
         self.board.setColumnCount(10000) #10000 default
         self.board.setRowCount(50)
         for i in range(self.board.columnCount()):
-            self.board.setColumnWidth(i,5)
+            self.board.setColumnWidth(i,tableColumnWidth)
         for i in range(self.board.rowCount()):
             self.board.setRowHeight(i,50)
         self.board.horizontalScrollBar().valueChanged.connect(self.moveCursor)
@@ -189,6 +192,21 @@ class sc2buildUI(QMainWindow):
                 for j in range(self.board.rowCount()):
                     self.board.setItem(j, i, QTableWidgetItem (""))
                     self.board.item(j, i).setBackground(QColor(140,140,140))
+
+        #zoom button and label
+        self.zoomMinusButton = QPushButton('-', self)
+        self.zoomLabel = QLabel(self)
+        self.zoomPlusButton = QPushButton('+', self)
+        self.zoomMinusButton.move(825,735)
+        self.zoomMinusButton.resize(40,25)
+        self.zoomLabel.move(870,735)
+        self.zoomLabel.resize(40,25)
+        self.zoomLabel.setText("Zoom")
+        self.zoomPlusButton.move(920,735)
+        self.zoomPlusButton.resize(40,25)
+
+        self.zoomMinusButton.clicked.connect(self.boardZoomOut)
+        self.zoomPlusButton.clicked.connect(self.boardZoomIn)
 
         #moveable cursor 
         self.cursorLine = QWidget(self.board)
@@ -353,6 +371,27 @@ class sc2buildUI(QMainWindow):
                 self.upgradeButton[upgrade_[i][1]['no']].setToolTip(str(upgrade_[i][0] + "\n m: " + str(upgrade_[i][1]['mineral']) + "\n g: " + str(upgrade_[i][1]['gas']) + "\n t: " + str(upgrade_[i][1]['buildtime'])))
 
         self.show()
+        self.newCursor(0)
+#board Zoom out
+    def boardZoomOut(self):
+        global tableColumnWidth
+        if tableColumnWidth > 2:
+            tableColumnWidth -= 1
+            self.updateBoardColumnWidth(tableColumnWidth)
+
+#board Zoom in
+    def boardZoomIn(self):
+        global tableColumnWidth
+        if tableColumnWidth < 15:
+            tableColumnWidth += 1
+            self.updateBoardColumnWidth(tableColumnWidth)
+
+#update Board Column Width
+    def updateBoardColumnWidth(self, value):
+        tempCursor = self.cursor #save cursor location
+        for i in range(self.board.columnCount()):
+            self.board.setColumnWidth(i,value)
+        self.newCursor(tempCursor) #move cursor back to original column
 
 #toggle autoscroll variable
     def AutoscrollToggle(self, state):
@@ -803,9 +842,7 @@ class sc2buildUI(QMainWindow):
         #autoscroll board only if setting is true
         if self.autoscrollOption:
             self.board.scrollToItem(self.board.item(0,storedColumn), QAbstractItemView.EnsureVisible)
-            
-
-
+#erase item            
     def eraseItem(self, row, col):
         err = error.NoItemToDelete
         
@@ -848,7 +885,7 @@ class sc2buildUI(QMainWindow):
     def newCursor(self, val):
         self.cursor = val
         HScroll = self.board.horizontalScrollBar().value()
-        self.cursorLine.move(5*(self.cursor - HScroll), 0)
+        self.cursorLine.move(tableColumnWidth*(self.cursor - HScroll), 0)
 
         mineral, gas = self.engine.AccResources(self.cursor)
         curSup, maxSup = self.engine.CurrentSupply(self.cursor)
