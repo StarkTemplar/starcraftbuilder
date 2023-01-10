@@ -48,7 +48,7 @@ class Engine():
             n = 'command center'
             w = 'scv'
             startingSupply = 12
-            muleLifespan = 90
+            muleLifespan = 64
             orbitalStartingEnergy = unit_dict['building'][race]['orbital command']["startingEnergy"]
         elif race == 'zerg':
             n = 'hatchery'
@@ -672,14 +672,57 @@ class Engine():
         mineral = 50 #starting minerals
         gas = 0 #starting gas
 
-        for i in range(len(self.worker.time)):
-            if self.worker.time[i] > time:
+        if self.race in ["terran","protoss","zerg"]:
+            mineralMiningRate = 5.26 #sc2 mineral mining rate
+            mineralTrip = 5
+            gasMiningRate = 3.9
+            gasTrip = 4
+            saturationArray = [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.998,0.957,0.937,0.917,0.896,0.875,0.854,0.833]
+        elif self.race in ["terranBW","zergBW","protossBW"]:
+            if self.race == "terranBW":
+                mineralMiningRate = 7.38 #terran mineral mining factor
+            elif self.race == "zergBW":
+                mineralMiningRate = 7.15 #zerg mineral mining factor
+            elif self.race == "protossBW":
+                mineralMiningRate = 7.05 #protoss mineral mining factor
+
+            mineralTrip = 8
+            gasMiningRate = 4.66
+            gasTrip = 8
+            # bw mining info https://liquipedia.net/starcraft/Mining
+            saturationArray = [0,1,1,1,1,1,1,1,1,1,0.964,0.928,0.902,0.877,0.858,0.840,0.825,0.811,0.800,0.789,0.780,0.771,0.763,0.755,0.749,0.743,0.738,0.732,0.707,0.682]
+
+        # combine and sort arrays
+        # mineral array might be out of order due to building buildings
+        zippedArrays = zip(self.worker.time, self.worker.mineral)
+        sortedPairs = sorted(zippedArrays)
+        tuples = zip(*sortedPairs)
+        timeList, mineralList = [ list(tuple) for tuple in  tuples]
+
+        saturationAdjustment = 1
+        mineralWorkerCount = 0
+
+        for i in range(len(timeList)): # for loop to calculate minerals. more complicated to account for decreased efficiency due to saturation
+            if timeList[i] >= time: # ignore times greater than parameter time
                 continue
-            #normal mineral workers
-            mineral += int(5 * self.worker.mineral[i] * ((time - self.worker.time[i]) / 5.4))
+                
+            mineralWorkerCount += mineralList[i]
+            miningBases = self.buildingCount("planetary fortress",time,True) + self.buildingCount("orbital command",time,True) + self.buildingCount("command center",time,False) + self.buildingCount("cc with comsat station",time,True) + self.buildingCount("cc with nuclear silo",time,True) + self.buildingCount("hatchery",time,False) + self.buildingCount("lair",time,True) + self.buildingCount("hive",time,True) + self.buildingCount("nexus",time,False)
+            saturationAdjustment = (mineralWorkerCount/miningBases)
+            saturationAdjustment = saturationArray[int(saturationAdjustment)]
+            if i + 1 == len(timeList) or timeList[i + 1] >= time:
+                mineral += int(saturationAdjustment * (mineralTrip * mineralWorkerCount * ((time - timeList[i]) / mineralMiningRate)))
+            else:
+                mineral += int(saturationAdjustment * (mineralTrip * mineralWorkerCount * ((timeList[i+1] - timeList[i]) / mineralMiningRate)))
+                
+        for i in range(len(self.worker.time)): # for loop to calculate gas and MULES. more simple because 1-3 workers are similar efficiency
+            if self.worker.time[i] > time: # ignore times greater than parameter time
+                continue
+            if self.worker.gas[i] == 0 and self.worker.mule[i] == 0:
+                continue
+            gas += int(gasTrip * self.worker.gas[i] * ((time - self.worker.time[i]) / gasMiningRate))
             #MULE on minerals
             mineral += int(25 * self.worker.mule[i] * ((time - self.worker.time[i]) / 6.9))
-            gas += int(4 * self.worker.gas[i] * ((time - self.worker.time[i]) / 3.9))
 
         for i in self.queue:
             if i.starttime > time:
@@ -745,7 +788,6 @@ class Engine():
                 continue
             count += self.worker.scouting[i]
         return count
-
 # return the number of workers building
     def countBuildingWorkers(self, time):
         count = 0
@@ -754,7 +796,6 @@ class Engine():
                 continue
             count += self.worker.building[i]
         return count
-
 # return the number of Mules
     def countMules(self, time):
         count = 0
@@ -840,7 +881,7 @@ class Engine():
             if i.name == building:
                if i.starttime <= time < i.endtime:
                     count +=1
-               elif morphing == True and i.starttime > time and i.name in ["lair","hive"]:
+               elif morphing == True and i.starttime > time and i.name in ["lair","hive"]:#add other bases
                    # if morphing is true and the starttime is in the future
                    # and the name is lair or hive. count this so larva will still be produced
                    count += 1

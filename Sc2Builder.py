@@ -512,8 +512,9 @@ class sc2buildUI(QMainWindow):
 
 # called when scroller moved (event)
     def moveCursor(self):
+        global tableColumnWidth
         HScroll = self.board.horizontalScrollBar().value()
-        self.cursorLine.move(5*(self.cursor - HScroll), 0)
+        self.cursorLine.move(tableColumnWidth*(self.cursor - HScroll), 0)
 
 # order a worker to gather minerals who used to mine gases
     def gatherMineral(self):

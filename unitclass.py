@@ -65,19 +65,39 @@ class Worker():
     # if m is negative, mineral schedule preserves
     # same as others
     def addSchedule(self, time, mineral, gas, donothing, scouting, building):
-        self.time.append(time)
-        self.mineral.append(mineral)
-        self.gas.append(gas)
-        self.donothing.append(donothing)
-        self.scouting.append(scouting)
-        self.building.append(building)
-        self.mule.append(0)
+        try:
+            searchIndex = self.time.index(time)
+        except:
+            searchIndex = -1
+
+        if searchIndex >= 0: #if time value already exists, combine with existing values. this is to prevent duplicate time values in array
+            self.mineral[searchIndex] += mineral
+            self.gas[searchIndex] += gas
+            self.donothing[searchIndex] += donothing
+            self.scouting[searchIndex] += scouting
+            self.building[searchIndex] += building
+        else:
+            self.time.append(time)
+            self.mineral.append(mineral)
+            self.gas.append(gas)
+            self.donothing.append(donothing)
+            self.scouting.append(scouting)
+            self.building.append(building)
+            self.mule.append(0)
 
     def muleSchedule(self, time, mule):
-        self.time.append(time)
-        self.mineral.append(0)
-        self.gas.append(0)
-        self.donothing.append(0)
-        self.scouting.append(0)
-        self.building.append(0)
-        self.mule.append(mule)
+        try:
+            searchIndex = self.time.index(time)
+        except:
+            searchIndex = -1
+
+        if searchIndex >= 0: #if time value already exists, combine with existing values. this is to prevent duplicate time values in array
+            self.mule[searchIndex] += mule
+        else:
+            self.time.append(time)
+            self.mineral.append(0)
+            self.gas.append(0)
+            self.donothing.append(0)
+            self.scouting.append(0)
+            self.building.append(0)
+            self.mule.append(mule)
