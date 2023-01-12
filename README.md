@@ -10,18 +10,21 @@ Forked from https://github.com/phraust1612/sc2builder
 
 ## Roadmap
 
-Building out unit lists for Starcraft 2 Terran and Zerg.
-Work out bugs.
-Begin adding in SC Brood War units.
+Improve chronoboost function.
+Update gui to include a simplified build order output.
 
 ## About
 
-Build order calculator for Starcraft: Brood War and Starcraft II in GUI. It gives you a demonstration of Starcraft II in a graph, so you can easily check resources, units, buildings before you play a live game.
+Build order calculator for Starcraft: Brood War and Starcraft II in GUI. It gives you a demonstration of the game in a graph, so you can easily check resources, units, buildings before you play a live game.
 
 ## How to Use
 
-### git
+### zip files
 
+You can also directly download zip files that matches to your OS.
+Unzip it and execute 'Sc2Builder.exe'
+
+### git
 You can install Starcraft Builder with git :
 
 ```shell
@@ -30,10 +33,4 @@ $ python3 sc2builder/Sc2Builder
 ```
 
 You can pass your race via command line, but it's not necessary.
-If sys gets no argv about race, it will automatically bring protoss.
-
-
-### zip files
-
-You can also directly download zip files that matches to your OS.
-Unzip it and execute 'Sc2Builder.exe'
+If sys gets no argv about race, it will automatically load terran.
