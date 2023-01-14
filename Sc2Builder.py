@@ -818,7 +818,7 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
                 icon = QIcon(filename)
                 self.inputTable.item(0,i).setIcon(icon)
 
-            #store the row number so we can autoscroll horizontal bar
+            #store the column number so we can autoscroll horizontal bar
             storedColumn += 1
 
         #autoscroll inputTable only if setting is true
@@ -832,9 +832,9 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
             if item.state != "start":
                 continue
             level = 0
-            storedLevel = self.board.columnSpan(level, item.starttime)
+            #storedLevel = self.board.columnSpan(level, item.starttime)
             while self.board.columnSpan(level, item.starttime) != 1 or self.board.columnSpan(level, item.endtime) != 1:
-                storedLevel = self.board.columnSpan(level, item.starttime)
+                #storedLevel = self.board.columnSpan(level, item.starttime)
                 level += 1
 
             self.board.setSpan(level, item.starttime, 1, item.endtime - item.starttime)
@@ -842,8 +842,9 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
             self.board.item(level,item.starttime).setToolTip(item.name + "\nstart: " + SecondToStr(item.starttime) + "\nend: " + SecondToStr(item.endtime))
             
             #store the column number so we can autoscroll horizontal bar
-            if item.starttime > storedColumn:
+            if item.endtime > storedColumn:
                 storedColumn = item.starttime
+                storedLevel = level
 
             # for the case of chronoboosted units or upgrades would have blue background color
             # and if it was boosted partially, it gets little lighter blue background
@@ -874,17 +875,18 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
 
 
             level = 0
-            storedLevel = self.board.columnSpan(level, self.engine.worker.time[i])
+            #storedLevel = self.board.columnSpan(level, self.engine.worker.time[i])
             while self.board.columnSpan(level, self.engine.worker.time[i]) != 1 or self.board.columnSpan(level, self.engine.worker.time[i]+11) != 1:
-                storedLevel = self.board.columnSpan(level, self.engine.worker.time[i])
+                #storedLevel = self.board.columnSpan(level, self.engine.worker.time[i])
                 level += 1
             self.board.setSpan(level, self.engine.worker.time[i], 1, 16)
             self.board.setItem(level, self.engine.worker.time[i], QTableWidgetItem(text))
             self.board.item(level,self.engine.worker.time[i]).setToolTip(text + "\nstart: " + SecondToStr(self.engine.worker.time[i]))
 
             #store the column number so we can autoscroll horizontal bar
-            if self.engine.worker.time[i] > storedColumn:
+            if self.engine.worker.time[i] + 16 > storedColumn:
                 storedColumn = self.engine.worker.time[i]
+                storedLevel = level
         
         # draw larva injections for zerg or MULE drops for terran
         if self.race in ["zerg","terran"]:
@@ -906,10 +908,11 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
                             #store the column number so we can autoscroll horizontal bar
                             if j.starttime > storedColumn:
                                 storedColumn = j.starttime
+                                storedLevel = level
 
         #autoscroll board only if setting is true
         if autoscrollOption:
-            self.board.scrollToItem(self.board.item(0,storedColumn), QAbstractItemView.EnsureVisible)
+            self.board.scrollToItem(self.board.item(storedLevel,storedColumn), QAbstractItemView.EnsureVisible)
 #erase item            
     def eraseItem(self, row, col):
         err = error.NoItemToDelete
