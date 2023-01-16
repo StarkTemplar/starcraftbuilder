@@ -708,6 +708,8 @@ class Engine():
                 
             mineralWorkerCount += mineralList[i]
             miningBases = self.buildingCount("planetary fortress",time,True) + self.buildingCount("orbital command",time,True) + self.buildingCount("command center",time,False) + self.buildingCount("cc with comsat station",time,True) + self.buildingCount("cc with nuclear silo",time,True) + self.buildingCount("hatchery",time,False) + self.buildingCount("lair",time,True) + self.buildingCount("hive",time,True) + self.buildingCount("nexus",time,False)
+            if miningBases < 1:
+                miningBases = 1 #avoid divide by zero
             saturationAdjustment = (mineralWorkerCount/miningBases)
             saturationAdjustment = saturationArray[int(saturationAdjustment)]
             if i + 1 == len(timeList) or timeList[i + 1] >= time:
@@ -881,9 +883,10 @@ class Engine():
             if i.name == building:
                if i.starttime <= time < i.endtime:
                     count +=1
-               elif morphing == True and i.starttime > time and i.name in ["lair","hive"]:#add other bases
+               elif morphing == True and i.starttime > time:
                    # if morphing is true and the starttime is in the future
-                   # and the name is lair or hive. count this so larva will still be produced
+                   # count this so larva will still be produced
+                   # also used for worker saturation calculations
                    count += 1
             
         return count

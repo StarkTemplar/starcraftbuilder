@@ -805,6 +805,7 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
         self.inputTable.clearSpans()
 
         storedColumn = 0
+        primaryLevel = 0
 
         # draw inputTable items
         self.inputTable.setColumnCount(len(self.engine.input))
@@ -828,10 +829,54 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
         # draw items from engine.queue
         # this includes units, buildings, upgrades
         self.inputNo = []
+        primaryItems = ['nexus', 'hatchery', 'lair', 'hive','command center', 'orbital command', 'planetary fortress', 'cc with comsat station', 'cc with nuclear silo',
+            'probe', 'drone', 'scv', 'pylon', 'overlord', 'supply depot',
+            'assimilator','extractor','refinery']
+        #only loop through primaryitems. this is so items related to bases and supply will stay near the top of the board
         for item in self.engine.queue:
             if item.state != "start":
                 continue
+            if item.name not in primaryItems: #skip items not in the list
+                continue
             level = 0
+            #storedLevel = self.board.columnSpan(level, item.starttime)
+            while self.board.columnSpan(level, item.starttime) != 1 or self.board.columnSpan(level, item.endtime) != 1:
+                #storedLevel = self.board.columnSpan(level, item.starttime)
+                level += 1
+
+            self.board.setSpan(level, item.starttime, 1, item.endtime - item.starttime)
+            self.board.setItem(level, item.starttime, QTableWidgetItem(item.name))
+            self.board.item(level,item.starttime).setToolTip(item.name + "\nstart: " + SecondToStr(item.starttime) + "\nend: " + SecondToStr(item.endtime))
+            
+            #store the column number so we can autoscroll horizontal bar
+            if item.endtime > storedColumn:
+                storedColumn = item.starttime
+                storedLevel = level
+
+            #store highest level for next for loop
+            if primaryLevel < level:
+                primaryLevel = level
+
+            # for the case of chronoboosted units or upgrades would have blue background color
+            # and if it was boosted partially, it gets little lighter blue background
+            if item.type == 'unit' or item.type == 'upgrade':
+                if item.boosted > 1:
+                    self.board.item(level, item.starttime).setBackground(QColor(128,182,255)) #darker blue
+                elif item.boosted == 1:
+                    self.board.item(level, item.starttime).setBackground(QColor(191,219,255)) #lighter blue
+                else:
+                    self.board.item(level, item.starttime).setBackground(QColor(255,255,255)) #white
+            else:
+                self.board.item(level, item.starttime).setBackground(QColor(255,255,255)) #white
+            self.inputNo.append( (level, item.starttime, item.inputlink) )
+
+        #loop through other items not in the primaryItem list
+        for item in self.engine.queue:
+            if item.state != "start":
+                continue
+            if item.name in primaryItems: #skip items in the list
+                continue
+            level = primaryLevel + 1 # make starting level equal to the highest level from the previous for loop + 1
             #storedLevel = self.board.columnSpan(level, item.starttime)
             while self.board.columnSpan(level, item.starttime) != 1 or self.board.columnSpan(level, item.endtime) != 1:
                 #storedLevel = self.board.columnSpan(level, item.starttime)
