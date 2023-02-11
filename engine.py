@@ -146,7 +146,11 @@ class Engine():
         c = 0
         print("\n*** New Simulation ***")
         for i in range(len(self.input)):
-            if self.input[i][1] == 'unit' or self.input[i][1] == 'upgrade':
+            if self.input[i][0] == "chronoboostprev":
+                c, missingpreReq = t.modifyPreviousItem(t.queue[-2], t.queue[-1])
+                if c<0:
+                    return c, missingpreReq
+            elif self.input[i][1] == 'unit' or self.input[i][1] == 'upgrade':
                 if i>0 and self.input[i-1][0] == "chronoboost":
                     c, missingpreReq = t.BuildUnit(self.input[i][1], self.input[i][0], c, True, True)
                     if c<0:
@@ -350,6 +354,29 @@ class Engine():
         self.queue = self.SortQueue(self.queue)
         return real_time, 0
 
+# modify previous item in the queue. used for chronoboosting previously made unit or upgrade
+    def modifyPreviousItem(self, lastItemStart, lastItemEnd):
+        
+        typ = lastItemStart.type
+        building = lastItemStart.buildinglinked
+        real_time = lastItemStart.starttime
+        build_time = lastItemStart.endtime - lastItemStart.starttime
+        boosted = 0
+        
+        if typ in ['unit','upgrade']:
+            build_time, boosted = self.callChronoboost(building, real_time, build_time)
+            if build_time < 0:
+                return error.NotEnoughNexusEnergy, 0
+        else:
+            return error.InvalidChronoboost
+        
+        #modify items in queue with new build time
+        lastItemStart.endtime = lastItemStart.starttime + build_time
+        lastItemStart.boosted = boosted
+        lastItemEnd.starttime = lastItemStart.endtime
+
+
+        return real_time, 0
 #addLarva function. Takes into account morphing lair or hive
 #use tertiaryQueue array to schedule larva generation as quickly as possible
     def addLarva(self, time, amount, delay, injection):
@@ -1074,13 +1101,15 @@ class Engine():
         return build_time, boosted
 
 #calculate new build time from chronoboost
-    def chronoBuildtime(self, target, targetTime, build_time):
+    def chronoBuildtime(self, target, targetTime, build_time): 
         boostedSeconds = 0
-        for i in target.secondaryQueue:
-            chronoStart = i.starttime
-            chronoEnd = i.endtime
+        
+        #for i in target.secondaryQueue:
+        if target.secondaryQueue:
+            chronoStart = target.secondaryQueue[-1].starttime #only use most recent chronoboost
+            chronoEnd = target.secondaryQueue[-1].endtime #only use most recent chronoboost
             if chronoEnd <= targetTime or chronoStart >= (targetTime + build_time):
-                continue
+                boostedSeconds += 0 #add nothing
             elif chronoStart <= targetTime and (targetTime + build_time) <= chronoEnd:
                 boostedSeconds += (chronoEnd - chronoStart) - (targetTime - chronoStart) - (chronoEnd - (targetTime + build_time))
             elif chronoStart > targetTime and targetTime + build_time > chronoEnd:
@@ -1099,7 +1128,7 @@ class Engine():
             boosted = 3
         else: #partial chronoboost
             boosted = 1
-            build_time = (int)(build_time - boostedSeconds + (boostedSeconds / 1.50)) #boostedSeconds is subtractd from the build and is replaced with boostedSeconds / 1.5
+            build_time = (int)(build_time - boostedSeconds + (boostedSeconds / 2)) #boostedSeconds is subtractd from the build and is replaced with boostedSeconds / 2
 
         return build_time, boosted
 

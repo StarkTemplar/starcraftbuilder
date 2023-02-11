@@ -62,11 +62,6 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
         #self.initUI() #containted hard coded positions for widgets
         self.setupUi(self) #from mainWindow.py
         self.populateTest() #modified versions of self.initUI() with hard coded locations removed
-        #self.autoscrollOption = True
-
-    #def resizeEvent(self, event):
-        #print("Window has been resized. Width: " + str(self.width()) + "  Height: " + str(self.height()))
-        #QMainWindow.resizeEvent(self, event)
 
 # initialize main interface
     def populateTest(self):
@@ -279,7 +274,11 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
             filename = IconPath('chronoboost', self.race)
             if filename != error.NoPathExists:
                 self.skillButton[0].setIcon(QIcon(filename))
-            self.skillButton[0].setIconSize(QSize(iconSize,iconSize)) #default 28
+                self.skillButton[1].setIcon(QIcon(filename))
+            self.skillButton[0].setIconSize(QSize(iconSize,iconSize))
+            self.skillButton[1].setIconSize(QSize(iconSize,iconSize))
+            self.skillButton[0].setToolTip("Chronoboost next unit/upgrade built")
+            self.skillButton[1].setToolTip("Chronoboost previous unit/upgrade built")
         if self.race == "zerg":
             filename = IconPath('spawnlarva', self.race)
             if filename != error.NoPathExists:
@@ -629,6 +628,14 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
         if self.race == "protoss" and no == 0:
             self.engine.AddItem("chronoboost","skill")
             return 0
+        elif self.race == "protoss" and no == 1:
+            self.engine.AddItem("chronoboostprev","skill")
+            err, missingpreReq = self.engine.Rearrange()
+            if err < 0:
+                errmsg = error.ErrorMsg(err)
+                msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
+                self.engine.DeleteItem(-1)
+                return err
         elif self.race == "zerg" and no == 0:
             self.engine.AddItem("spawnlarva","skill")
             err, missingpreReq = self.engine.Rearrange()
