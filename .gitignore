@@ -1,4 +1,4 @@
-jpgFiles/*
 *.pyc
 __pycache__/*
 build/*
+.vs/

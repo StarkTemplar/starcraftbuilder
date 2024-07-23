@@ -15,7 +15,7 @@ from PyQt5 import *
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
 
-VERSION = 1.4
+VERSION = 1.5
 tableColumnWidth = 0
 iconSize = 0
 fontSize = 0

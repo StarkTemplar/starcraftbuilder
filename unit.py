@@ -75,7 +75,7 @@ unit_dict = {
             "mineral":25,
             "gas":75,
             "supply":1,
-            "buildtime":21,
+            "buildtime":18,
             "buildfrom":"robotics facility"
         },
         "immortal":{
@@ -111,7 +111,7 @@ unit_dict = {
             "race":"protoss",
             "mineral":150,
             "gas":150,
-            "supply":3,
+            "supply":4,
             "buildtime":36,
             "buildfrom":"robotics facility",
             "required":"robotics bay"
@@ -147,10 +147,10 @@ unit_dict = {
         "mothership":{
             "no":15,
             "race":"protoss",
-            "mineral":400,
-            "gas":400,
-            "supply":8,
-            "buildtime":114,
+            "mineral":300,
+            "gas":300,
+            "supply":6,
+            "buildtime":79,
             "buildfrom":"nexus",
             "required":"fleet beacon"
         },
@@ -323,12 +323,11 @@ unit_dict = {
         "cyclone":{
             "no":8,
             "race":"terran",
-            "mineral":150,
-            "gas":100,
-            "supply":3,
+            "mineral":125,
+            "gas":50,
+            "supply":2,
             "buildtime":32,
-            "buildfrom":"factory with tech lab",
-            "required":"factory tech lab"
+            "buildfrom":["factory","factory reactor","factory with tech lab"]
         },
         "widow mine":{
             "no":9,
@@ -518,7 +517,7 @@ unit_dict = {
 		"ultralisk":{
             "no":11,
             "race":"zerg",
-            "mineral":300,
+            "mineral":275,
             "gas":200,
             "supply":6,
             "buildtime":39,
@@ -1284,7 +1283,7 @@ unit_dict = {
             "no":18,
             "race":"terran",
             "mineral":150,
-            "gas":100,
+            "gas":50,
             "buildtime":46,
             "required":["factory","factory reactor","factory with tech lab"],
             "supplyoffer":0
@@ -2175,8 +2174,8 @@ unit_dict = {
         "shields level 2":{
             "no":13,
             "race":"protoss",
-            "mineral":225,
-            "gas":225,
+            "mineral":200,
+            "gas":200,
             "buildfrom":"forge",
             "buildtime":154,
             "required":["twilight council","shield level 1"]
@@ -2184,8 +2183,8 @@ unit_dict = {
         "shields level 3":{
             "no":14,
             "race":"protoss",
-            "mineral":300,
-            "gas":300,
+            "mineral":250,
+            "gas":250,
             "buildfrom":"forge",
             "buildtime":179,
             "required":["twilight council","shield level 2"]
@@ -2251,16 +2250,16 @@ unit_dict = {
         "air armor level 1":{
             "no":22,
             "race":"protoss",
-            "mineral":150,
-            "gas":150,
+            "mineral":100,
+            "gas":100,
             "buildfrom":"cybernetics core",
             "buildtime":129,
         },
         "air armor level 2":{
             "no":23,
             "race":"protoss",
-            "mineral":225,
-            "gas":225,
+            "mineral":175,
+            "gas":175,
             "buildfrom":"cybernetics core",
             "buildtime":154,
             "required":["fleet beacon","air armor level 1"]
@@ -2268,8 +2267,8 @@ unit_dict = {
         "air armor level 3":{
             "no":24,
             "race":"protoss",
-            "mineral":300,
-            "gas":300,
+            "mineral":250,
+            "gas":250,
             "buildfrom":"cybernetics core",
             "buildtime":179,
             "required":["fleet beacon","air armor level 2"]
@@ -2319,8 +2318,8 @@ unit_dict = {
         "infantry weapons level 2":{
             "no":3,
             "race":"terran",
-            "mineral":175,
-            "gas":175,
+            "mineral":150,
+            "gas":150,
             "buildfrom":"engineering bay",
             "buildtime":136,
             "required":["armory","infantry weapons level 1"]
@@ -2328,8 +2327,8 @@ unit_dict = {
         "infantry weapons level 3":{
             "no":4,
             "race":"terran",
-            "mineral":250,
-            "gas":250,
+            "mineral":200,
+            "gas":200,
             "buildfrom":"engineering bay",
             "buildtime":157,
             "required":["armory","infantry weapons level 2"]
@@ -2361,8 +2360,8 @@ unit_dict = {
         "infantry armor level 2":{
             "no":8,
             "race":"terran",
-            "mineral":175,
-            "gas":175,
+            "mineral":150,
+            "gas":150,
             "buildfrom":"engineering bay",
             "buildtime":136,
             "required":["armory","infantry armor level 1"]
@@ -2370,8 +2369,8 @@ unit_dict = {
         "infantry armor level 3":{
             "no":9,
             "race":"terran",
-            "mineral":250,
-            "gas":250,
+            "mineral":200,
+            "gas":200,
             "buildfrom":"engineering bay",
             "buildtime":157,
             "required":["armory","infantry armor level 2"]
@@ -2659,10 +2658,10 @@ unit_dict = {
         "centrifugal hooks research":{
             "no":10,
             "race":"zerg",
-            "mineral":150,
-            "gas":150,
+            "mineral":100,
+            "gas":100,
             "buildfrom":"baneling nest",
-            "buildtime":79
+            "buildtime":71
         },
         "burrow research":{
             "no":11,
@@ -2683,8 +2682,8 @@ unit_dict = {
         "ground carapace level 2":{
             "no":13,
             "race":"zerg",
-            "mineral":225,
-            "gas":225,
+            "mineral":200,
+            "gas":200,
             "buildfrom":"evolution chamber",
             "buildtime":136,
             "required":["lair","ground carapace level 1"]
@@ -2692,8 +2691,8 @@ unit_dict = {
         "ground carapace level 3":{
             "no":14,
             "race":"zerg",
-            "mineral":300,
-            "gas":300,
+            "mineral":250,
+            "gas":250,
             "buildfrom":"evolution chamber",
             "buildtime":157,
             "required":["hive","ground carapace level 2"]
@@ -2701,10 +2700,10 @@ unit_dict = {
         "grooved spines research":{
             "no":15,
             "race":"zerg",
-            "mineral":100,
-            "gas":100,
+            "mineral":75,
+            "gas":75,
             "buildfrom":"hydralisk den",
-            "buildtime":71
+            "buildtime":50
         },
         "muscular augments research":{
             "no":16,
@@ -2712,7 +2711,7 @@ unit_dict = {
             "mineral":100,
             "gas":100,
             "buildfrom":"hydralisk den",
-            "buildtime":71
+            "buildtime":64
         },
         "flyer attacks level 1":{
             "no":17,
@@ -2743,8 +2742,8 @@ unit_dict = {
         "adaptive talons research":{
             "no":20,
             "race":"zerg",
-            "mineral":150,
-            "gas":150,
+            "mineral":100,
+            "gas":100,
             "buildfrom":"lurker den",
             "buildtime":57
         },
@@ -2759,16 +2758,16 @@ unit_dict = {
 		"flyer carapace level 1":{
             "no":22,
             "race":"zerg",
-            "mineral":150,
-            "gas":150,
+            "mineral":100,
+            "gas":100,
             "buildfrom":"spire",
             "buildtime":114
         },
         "flyer carapace level 2":{
             "no":23,
             "race":"zerg",
-            "mineral":225,
-            "gas":225,
+            "mineral":175,
+            "gas":175,
             "buildfrom":"spire",
             "buildtime":136,
             "required":["lair","flyer carapace level 1"]
@@ -2776,8 +2775,8 @@ unit_dict = {
         "flyer carapace level 3":{
             "no":24,
             "race":"zerg",
-            "mineral":300,
-            "gas":300,
+            "mineral":250,
+            "gas":250,
             "buildfrom":"spire",
             "buildtime":157,
             "required":["hive","flyer carapace level 2"]
