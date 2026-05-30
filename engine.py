@@ -217,7 +217,7 @@ class Engine():
 
         res_time = self.ResourceTime(mineral, gas, time)
         if res_time < 0:
-            return res_time, 0
+            return res_time, res_time
 
         real_time, building = self.BuildableTimeAfter(typ, unit, res_time)
         if real_time < 0:
@@ -680,12 +680,12 @@ class Engine():
 
         return current_supply, max_supply
 
-# this returns the earliest time from given aftertime, which is the time when minerals and gases are ready.
+# this returns the earliest time from given aftertime, which is the time when minerals and gas are ready.
 # if you already have them, returns now - 'aftertime'
 # if no available time exists, return error.NoOneGathersGasOrMineral
     def ResourceTime(self, mineral, gas, aftertime):
         # if this func approaches here, worker doesn't exist who gathers minerals or gases
-        if aftertime >= 1000: #default value of 10000 was causing integer error
+        if aftertime >= 900: #default value of 10000 was causing integer error
             return error.NoOneGathersGasOrMineral
         a,b = self.AccResources(aftertime)
         if a>=mineral and b>=gas:

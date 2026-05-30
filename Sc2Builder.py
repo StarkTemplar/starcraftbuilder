@@ -15,7 +15,7 @@ from PyQt5 import *
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
 
-VERSION = 1.5
+VERSION = 1.6
 tableColumnWidth = 0
 iconSize = 0
 fontSize = 0
@@ -522,11 +522,11 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
                     msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
                     return err
 
-                if version == 1.0:
+                if version <= VERSION:
                     if text[1]:
                         race = text[1]
                         race = race[:-1]
-                        if race not in ["protoss","terran","zerg"]:
+                        if race not in ["protoss","terran","zerg","protossBW","terranBW","zergBW"]:
                             err = error.WrongRace
                             errmsg = error.ErrorMsg(err)
                             msg = QMessageBox.warning(self,'error!',errmsg, QMessageBox.Ok, QMessageBox.Ok)
@@ -547,6 +547,7 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
 
                     self.close()
                     newMD = sc2buildUI(race,self.savefilename)
+                    newMD.show()
                     newMD.engine.input = newinput
                     err, missingpreReq = newMD.engine.Rearrange()
 
@@ -569,10 +570,9 @@ class sc2buildUI(QMainWindow, Ui_MainWindow):
     def About(self):
         msg = QMessageBox.information(self,"About...",\
             "sc2builder version: " + str(VERSION) +\
-            "\nMade by 민병욱(Min Byeonguk)\n"+\
-            "contact me : phraust1612@gmail.com\n"+\
+            "\nOriginal made by 민병욱(Min Byeonguk)\n"+\
             "https://github.com/phraust1612\n"\
-            "Updated by StarkTemplar\n"+\
+            "\nUpdated by StarkTemplar\n"+\
             "https://github.com/StarkTemplar/starcraftbuilder",\
             QMessageBox.Ok, QMessageBox.Ok)
 

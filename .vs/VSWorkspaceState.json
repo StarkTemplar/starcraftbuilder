@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\jpgFiles"
   ],
-  "SelectedNode": "\\Sc2Builder.py",
+  "SelectedNode": "\\engine.py",
   "PreviewInSolutionExplorer": false
 }

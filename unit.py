@@ -25,7 +25,7 @@ unit_dict = {
             "mineral":125,
             "gas":50,
             "supply":2,
-            "buildtime":30,
+            "buildtime":27,
             "buildfrom":"gateway",
             "required":"cybernetics core"
         },
@@ -81,7 +81,7 @@ unit_dict = {
         "immortal":{
             "no":8,
             "race":"protoss",
-            "mineral":275,
+            "mineral":250,
             "gas":100,
             "supply":4,
             "buildtime":39,
@@ -147,9 +147,9 @@ unit_dict = {
         "mothership":{
             "no":15,
             "race":"protoss",
-            "mineral":300,
-            "gas":300,
-            "supply":6,
+            "mineral":400,
+            "gas":400,
+            "supply":8,
             "buildtime":79,
             "buildfrom":"nexus",
             "required":"fleet beacon"
@@ -168,7 +168,7 @@ unit_dict = {
             "race":"protoss",
             "mineral":250,
             "gas":175,
-            "supply":5,
+            "supply":4,
             "buildtime":43,
             "buildfrom":"stargate",
             "required":"fleet beacon"
@@ -351,7 +351,7 @@ unit_dict = {
         "viking":{
             "no":11,
             "race":"terran",
-            "mineral":150,
+            "mineral":125,
             "gas":75,
             "supply":2,
             "buildtime":30,
@@ -427,7 +427,7 @@ unit_dict = {
         "queen":{
             "no":2,
             "race":"zerg",
-            "mineral":150,
+            "mineral":175,
             "gas":0,
             "supply":2,
             "buildtime":36,
@@ -1118,7 +1118,7 @@ unit_dict = {
             "mineral":150,
             "gas":0,
             "buildtime":25,
-            "supplyoffer":15,
+            "supplyoffer":0,
             "addon":"true",
             "buildfrom":"command center",
             "required":"barracks",
@@ -1130,7 +1130,7 @@ unit_dict = {
             "mineral":150,
             "gas":150,
             "buildtime":36,
-            "supplyoffer":15,
+            "supplyoffer":0,
             "addon":"true",
             "buildfrom":"command center",
             "required":"engineering bay"
@@ -1240,8 +1240,8 @@ unit_dict = {
         "sensor tower":{
             "no":14,
             "race":"terran",
-            "mineral":125,
-            "gas":100,
+            "mineral":100,
+            "gas":50,
             "buildtime":18,
             "required":"engineering bay",
             "supplyoffer":0
@@ -1344,7 +1344,7 @@ unit_dict = {
         "hatchery":{
             "no":0,
             "race":"zerg",
-            "mineral":300,
+            "mineral":275,
             "gas":0,
             "buildtime":71,
 			"buildfrom":"drone",
@@ -1460,9 +1460,9 @@ unit_dict = {
 		"spire":{
             "no":12,
             "race":"zerg",
-            "mineral":200,
-            "gas":200,
-            "buildtime":71,
+            "mineral":150,
+            "gas":150,
+            "buildtime":66,
             "supplyoffer":0,
 			"buildfrom":"drone",
             "required":"lair"
@@ -2472,10 +2472,10 @@ unit_dict = {
         "hyperflight rotors research":{
             "no":21,
             "race":"terran",
-            "mineral":150,
-            "gas":150,
+            "mineral":125,
+            "gas":125,
             "buildfrom":"starport tech lab",
-            "buildtime":121
+            "buildtime":79
         },
         "vehicle and ship plating level 1":{
             "no":22,
@@ -2812,6 +2812,23 @@ unit_dict = {
             "gas":150,
             "buildfrom":"lair",
             "buildtime":43
+        },
+        "nanomuscular swell research":{
+            "no":29,
+            "race":"zerg",
+            "mineral":100,
+            "gas":100,
+            "buildfrom":"hydralisk den",
+            "buildtime":64,
+            "required":"hive"
+        },
+        "evolve microbial shroud":{
+            "no":30,
+            "race":"zerg",
+            "mineral":150,
+            "gas":150,
+            "buildfrom":"infestation pit",
+            "buildtime":79
         }
     },
     "protossBW":{
