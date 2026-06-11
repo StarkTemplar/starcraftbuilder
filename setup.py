@@ -12,7 +12,7 @@ if platform.system() == 'Windows':
     
 setup(
     name = 'Sc2Builder',
-    version = 1.0,
+    version = 1.7,
     description = 'Starcraft II build-order calculator',
     long_description = read('README.md'),
     author = 'Min Byeonguk',

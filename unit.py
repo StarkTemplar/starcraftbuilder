@@ -16,7 +16,7 @@ unit_dict = {
             "mineral":100,
             "gas":0,
             "supply":2,
-            "buildtime":27,
+            "buildtime":28,
             "buildfrom":"gateway"
         },
         "stalker":{
@@ -25,7 +25,7 @@ unit_dict = {
             "mineral":125,
             "gas":50,
             "supply":2,
-            "buildtime":27,
+            "buildtime":28,
             "buildfrom":"gateway",
             "required":"cybernetics core"
         },
@@ -35,7 +35,7 @@ unit_dict = {
             "mineral":50,
             "gas":100,
             "supply":2,
-            "buildtime":26,
+            "buildtime":24,
             "buildfrom":"gateway",
             "required":"cybernetics core"
         },
@@ -45,7 +45,7 @@ unit_dict = {
             "mineral":100,
             "gas":25,
             "supply":2,
-            "buildtime":30,
+            "buildtime":28,
             "buildfrom":"gateway",
             "required":"cybernetics core"
         },
@@ -55,7 +55,7 @@ unit_dict = {
             "mineral":50,
             "gas":150,
             "supply":2,
-            "buildtime":39,
+            "buildtime":40,
             "buildfrom":"gateway",
             "required":"templar archives"
         },
@@ -65,7 +65,7 @@ unit_dict = {
             "mineral":125,
             "gas":125,
             "supply":2,
-            "buildtime":39,
+            "buildtime":40,
             "buildfrom":"gateway",
             "required":"dark shrine"
         },
@@ -189,7 +189,7 @@ unit_dict = {
             "mineral":100,
             "gas":0,
             "supply":2,
-            "buildtime":20,
+            "buildtime":22,
             "buildfrom":"warp gate"
         },
         "warp stalker":{
@@ -198,7 +198,7 @@ unit_dict = {
             "mineral":125,
             "gas":50,
             "supply":2,
-            "buildtime":23,
+            "buildtime":22,
             "buildfrom":"warp gate",
             "required":"cybernetics core"
         },
@@ -208,7 +208,7 @@ unit_dict = {
             "mineral":50,
             "gas":100,
             "supply":2,
-            "buildtime":23,
+            "buildtime":22,
             "buildfrom":"warp gate",
             "required":"cybernetics core"
         },
@@ -218,7 +218,7 @@ unit_dict = {
             "mineral":100,
             "gas":25,
             "supply":2,
-            "buildtime":20,
+            "buildtime":22,
             "buildfrom":"warp gate",
             "required":"cybernetics core"
         },
@@ -228,7 +228,7 @@ unit_dict = {
             "mineral":50,
             "gas":150,
             "supply":2,
-            "buildtime":32,
+            "buildtime":35,
             "buildfrom":"warp gate",
             "required":"templar archives"
         },
@@ -238,7 +238,7 @@ unit_dict = {
             "mineral":125,
             "gas":125,
             "supply":2,
-            "buildtime":32,
+            "buildtime":35,
             "buildfrom":"warp gate",
             "required":"dark shrine"
         }
@@ -286,7 +286,7 @@ unit_dict = {
             "race":"terran",
             "mineral":150,
             "gas":125,
-            "supply":2,
+            "supply":3,
             "buildtime":29,
             "buildfrom":"barracks with tech lab",
             "required":"ghost academy"
@@ -965,7 +965,7 @@ unit_dict = {
             "mineral":400,
             "gas":0,
             "buildtime":71,
-            "supplyoffer":15,
+            "supplyoffer":13,
             "startingEnergy":50
         },
         "pylon":{
@@ -1077,8 +1077,8 @@ unit_dict = {
         "warp gate":{
             "no":13,
             "race":"protoss",
-            "mineral":0,
-            "gas":0,
+            "mineral":50,
+            "gas":50,
             "buildtime":7,
             "supplyoffer":0,
             "buildfrom":"gateway",
@@ -1110,7 +1110,7 @@ unit_dict = {
             "mineral":400,
             "gas":0,
             "buildtime":71,
-            "supplyoffer":15
+            "supplyoffer":13
         },
         "orbital command":{
             "no":1,
@@ -1348,7 +1348,7 @@ unit_dict = {
             "gas":0,
             "buildtime":71,
 			"buildfrom":"drone",
-            "supplyoffer":6
+            "supplyoffer":4
         },
         "overlord":{
             "no":1,
@@ -1393,7 +1393,7 @@ unit_dict = {
             "mineral":150,
             "gas":100,
             "buildtime":57,
-            "supplyoffer":15,
+            "supplyoffer":4,
 			"buildfrom":"hatchery",
             "required":"spawning pool"
         },
@@ -1443,7 +1443,7 @@ unit_dict = {
             "mineral":200,
             "gas":150,
             "buildtime":71,
-            "supplyoffer":15,
+            "supplyoffer":4,
 			"buildfrom":"lair",
             "required":"infestation pit"
         },
@@ -2068,7 +2068,7 @@ unit_dict = {
             "race":"protoss",
             "mineral":50,
             "gas":50,
-            "buildfrom":"cybernetics core",
+            "buildfrom":"gateway",
             "buildtime":100,
         },
         "charge research":{
@@ -2674,16 +2674,16 @@ unit_dict = {
         "ground carapace level 1":{
             "no":12,
             "race":"zerg",
-            "mineral":150,
-            "gas":150,
+            "mineral":100,
+            "gas":100,
             "buildfrom":"evolution chamber",
             "buildtime":114
         },
         "ground carapace level 2":{
             "no":13,
             "race":"zerg",
-            "mineral":200,
-            "gas":200,
+            "mineral":150,
+            "gas":150,
             "buildfrom":"evolution chamber",
             "buildtime":136,
             "required":["lair","ground carapace level 1"]
@@ -2691,8 +2691,8 @@ unit_dict = {
         "ground carapace level 3":{
             "no":14,
             "race":"zerg",
-            "mineral":250,
-            "gas":250,
+            "mineral":200,
+            "gas":200,
             "buildfrom":"evolution chamber",
             "buildtime":157,
             "required":["hive","ground carapace level 2"]

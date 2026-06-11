@@ -41,19 +41,19 @@ class Engine():
         if race == 'protoss':
             n = 'nexus'
             w = 'probe'
-            startingSupply = 12
+            startingSupply = 8
             nexusStartingEnergy = unit_dict['building'][race]['nexus']["startingEnergy"]
             chronoBoostDuration = 20
         elif race == 'terran':
             n = 'command center'
             w = 'scv'
-            startingSupply = 12
+            startingSupply = 8
             muleLifespan = 64
             orbitalStartingEnergy = unit_dict['building'][race]['orbital command']["startingEnergy"]
         elif race == 'zerg':
             n = 'hatchery'
             w = 'drone'
-            startingSupply = 12
+            startingSupply = 8
             lairBuildTime = unit_dict['building'][race]['lair']["buildtime"]
             hiveBuildTime = unit_dict['building'][race]['hive']["buildtime"]
             larvaGenerationTime = 11
@@ -97,7 +97,7 @@ class Engine():
         # Starcraft2
         if race in ["protoss","terran","zerg"]:
             self.worker.addSchedule(0,8,0,0,0,0) #8 workers get to a mineral patch immediatly
-            self.worker.addSchedule(3.825,4,0,0,0,0) #4 workers have to wait 3.825 seconds to start mining
+            #self.worker.addSchedule(3.825,4,0,0,0,0) #4 workers have to wait 3.825 seconds to start mining
             energyRegenRate = 0.7875
             fullySaturatedBase = 24
 
@@ -232,6 +232,14 @@ class Engine():
         build_time = unit_dict[typ][self.race][unit]['buildtime']
         boosted = 0
 
+        #add new check for gateway upgrade using gateway building
+        if self.race == "protoss" and unit in ["zealot","stalker","sentry","adept","high templar","dark templar"]:
+            #check if warp gate research is complete at this time
+            if self.CheckUnique("upgrade","warp gate research",real_time):
+                #if warp gate research is done, reduce gateway build times
+                build_time = int(build_time * .65)
+                boosted = 1
+        
         if chrono == True:
             if typ in ['unit','upgrade']:
                 build_time, boosted = self.callChronoboost(building, real_time, build_time)
@@ -240,7 +248,8 @@ class Engine():
             else:
                 return error.InvalidChronoboost
         elif self.race == "protoss" and typ in ['unit','upgrade'] and unit != "archon":
-            build_time, boosted = self.chronoBuildtime(building, real_time, build_time)
+            build_time, tempBoosted = self.chronoBuildtime(building, real_time, build_time)
+            boosted += tempBoosted #resolve issue where gateway units with lower build time were not being shaded
             
         self.queue.append(Unit(typ,unit, real_time, real_time+build_time))
         self.queue.append(Unit(typ,unit, real_time+build_time, state='end'))
