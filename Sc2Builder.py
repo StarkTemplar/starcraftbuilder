@@ -38,7 +38,10 @@ def IconPath(name, race):
     if os.path.exists(path):
         path = 'jpgFiles/' + race
     elif os.path.exists('../../jpgFiles'):
-        path = '../../jpgFiles'
+        path = '../../jpgFiles/' + race
+    elif os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/jpgFiles/' + race):
+        path = os.path.dirname(os.path.abspath(__file__)) + '/jpgFiles/' + race
+        #fixes issue with directory pathing on MAC
     else:
         return error.NoPathExists
 
