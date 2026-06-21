@@ -427,7 +427,7 @@ unit_dict = {
         "queen":{
             "no":2,
             "race":"zerg",
-            "mineral":175,
+            "mineral":150,
             "gas":0,
             "supply":2,
             "buildtime":36,
@@ -1077,8 +1077,8 @@ unit_dict = {
         "warp gate":{
             "no":13,
             "race":"protoss",
-            "mineral":50,
-            "gas":50,
+            "mineral":25,
+            "gas":25,
             "buildtime":7,
             "supplyoffer":0,
             "buildfrom":"gateway",
@@ -2068,7 +2068,7 @@ unit_dict = {
             "race":"protoss",
             "mineral":50,
             "gas":50,
-            "buildfrom":"gateway",
+            "buildfrom":"cybernetics core",
             "buildtime":100,
         },
         "charge research":{

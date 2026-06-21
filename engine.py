@@ -56,7 +56,7 @@ class Engine():
             startingSupply = 8
             lairBuildTime = unit_dict['building'][race]['lair']["buildtime"]
             hiveBuildTime = unit_dict['building'][race]['hive']["buildtime"]
-            larvaGenerationTime = 11
+            larvaGenerationTime = 9
             injectionSpawnTime = 40
             queenStartingEnergy = unit_dict['unit'][race]['queen']["startingEnergy"]
         elif race == 'protossBW':
@@ -237,7 +237,7 @@ class Engine():
             #check if warp gate research is complete at this time
             if self.CheckUnique("upgrade","warp gate research",real_time):
                 #if warp gate research is done, reduce gateway build times
-                build_time = int(build_time * .65)
+                build_time = int(build_time * .60)
                 boosted = 1
         
         if chrono == True:
